@@ -555,6 +555,9 @@
         <button class="demo-tab" data-demo="depth">
           <i class="fas fa-layer-group"></i> <span data-i18n="demos.tab_depth">Depth Estimation</span>
         </button>
+        <button class="demo-tab" data-demo="vlm">
+          <i class="fas fa-brain"></i> <span data-i18n="demos.tab_vlm">Vision Language</span>
+        </button>
       </div>
 
       <!-- Object Detection -->
@@ -689,8 +692,63 @@
         </div>
       </div>
 
+      <!-- Vision Language Model -->
+      <div class="demo-content hidden" id="demo-vlm">
+        <div class="demo-sidebar">
+          <h3 data-i18n="demos.vlm_title">Vision Language Model</h3>
+          <p class="demo-model-info">Transformers.js — SmolVLM-256M-Instruct (q4f16)</p>
+          <p class="demo-model-meta" data-i18n="demos.vlm_meta">256M params | ~175MB model (first load) | WebGPU required</p>
+          <div class="demo-controls">
+            <label class="demo-upload-label">
+              <input type="file" accept="image/*" id="vlmUpload" hidden>
+              <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.vlm_upload">Upload Image</span></span>
+            </label>
+            <button class="btn btn-outline" id="vlmSnapshot">
+              <i class="fas fa-camera"></i> <span data-i18n="demos.vlm_snapshot">Webcam Snapshot</span>
+            </button>
+            <select class="vlm-presets" id="vlmPreset">
+              <option value="describe" data-i18n="demos.vlm_preset_describe">Describe this image in detail</option>
+              <option value="objects" data-i18n="demos.vlm_preset_objects">What objects do you see?</option>
+              <option value="scene" data-i18n="demos.vlm_preset_scene">What is happening in this scene?</option>
+              <option value="custom" data-i18n="demos.vlm_preset_custom">Custom</option>
+            </select>
+            <textarea class="vlm-prompt" id="vlmPrompt" rows="2" data-i18n-placeholder="demos.vlm_prompt_ph" placeholder="Ask something about the image..."></textarea>
+            <button class="btn btn-primary" id="vlmGenerate" disabled>
+              <i class="fas fa-magic"></i> <span data-i18n="demos.vlm_generate">Generate</span>
+            </button>
+          </div>
+          <div class="demo-options">
+            <label class="demo-option">
+              <span data-i18n="demos.vlm_max_tokens">Max tokens</span>
+              <div class="range-row">
+                <input type="range" id="vlmMaxTokens" min="50" max="500" value="200" step="50">
+                <span id="vlmMaxVal" class="range-val">200</span>
+              </div>
+            </label>
+            <label class="demo-option">
+              <span data-i18n="demos.vlm_temperature">Temperature</span>
+              <div class="range-row">
+                <input type="range" id="vlmTemperature" min="1" max="15" value="3">
+                <span id="vlmTempVal" class="range-val">0.3</span>
+              </div>
+            </label>
+          </div>
+          <div class="vlm-progress" id="vlmProgress" style="display:none;">
+            <div class="vlm-progress-bar"><div class="vlm-progress-fill" id="vlmProgressFill"></div></div>
+            <span class="vlm-progress-text" id="vlmProgressText">0%</span>
+          </div>
+          <div class="demo-status" id="vlmStatus"></div>
+        </div>
+        <div class="demo-viewport vlm-viewport">
+          <video id="vlmVideo" autoplay playsinline muted style="display:none;"></video>
+          <img id="vlmPreview" class="vlm-image-preview" style="display:none;" alt="Preview">
+          <div class="vlm-output" id="vlmOutput" style="display:none;"></div>
+          <div class="demo-placeholder" data-i18n="demos.vlm_placeholder">Upload an image and enter a prompt to begin</div>
+        </div>
+      </div>
+
       <div class="demo-streamlit-link" data-reveal="up">
-        <p><i class="fas fa-external-link-alt"></i> <span data-i18n="demos.streamlit_link">For VLM demos (Moondream2 Vision-Language Model), visit the full</span> <a href="https://asferrer.streamlit.app" target="_blank" rel="noopener">Streamlit Portfolio</a></p>
+        <p><i class="fas fa-external-link-alt"></i> <span data-i18n="demos.streamlit_link2">For more demos and full project details, visit the</span> <a href="https://asferrer.streamlit.app" target="_blank" rel="noopener">Streamlit Portfolio</a></p>
       </div>
     </div>
   </section>

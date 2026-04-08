@@ -50,6 +50,9 @@ const DemoEngine = {
   animId: null,
   models: { detection: null, pose: null, depth: null },
   _visionModule: null,
+  _vlmWorker: null,
+  _vlmReady: false,
+  _vlmImageBase64: null,
 
   /* ---------- Script loader ---------- */
   loadScript(src) {
@@ -440,11 +443,179 @@ const DemoEngine = {
     }
   },
 
+  /* ====================================
+     DEMO 4: Vision Language Model (SmolVLM)
+     ==================================== */
+  getVlmOpts() {
+    const maxTokens = parseInt(document.getElementById("vlmMaxTokens")?.value || "200", 10);
+    const tempRaw = parseInt(document.getElementById("vlmTemperature")?.value || "3", 10);
+    return { maxTokens, temperature: tempRaw / 10 };
+  },
+
+  unloadOtherModels(except) {
+    for (const key of Object.keys(this.models)) {
+      if (key !== except && this.models[key]) {
+        if (this.models[key].close) this.models[key].close();
+        this.models[key] = null;
+      }
+    }
+    if (except !== "pose") this._visionModule = null;
+  },
+
+  async initVlm() {
+    const status = "vlmStatus";
+    const progress = document.getElementById("vlmProgress");
+    const progressFill = document.getElementById("vlmProgressFill");
+    const progressText = document.getElementById("vlmProgressText");
+
+    // WebGPU check
+    if (!navigator.gpu) {
+      this.setStatus(status, translations[currentLang]["demos.vlm_no_webgpu"] || "WebGPU not supported. Try Chrome 113+.", "error");
+      return;
+    }
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (!adapter) {
+        this.setStatus(status, translations[currentLang]["demos.vlm_no_gpu"] || "No compatible GPU found.", "error");
+        return;
+      }
+    } catch {
+      this.setStatus(status, translations[currentLang]["demos.vlm_no_gpu"] || "No compatible GPU found.", "error");
+      return;
+    }
+
+    if (this._vlmReady) {
+      this.setStatus(status, translations[currentLang]["demos.vlm_ready"] || "Model ready", "success");
+      return;
+    }
+
+    this.unloadOtherModels("vlm");
+
+    this.setStatus(status, translations[currentLang]["demos.vlm_loading"] || "Downloading SmolVLM model...", "loading");
+    if (progress) progress.style.display = "";
+
+    if (this._vlmWorker) { this._vlmWorker.terminate(); this._vlmWorker = null; }
+    this._vlmWorker = new Worker("js/vlm-worker.js", { type: "module" });
+
+    this._vlmWorker.onmessage = ({ data: msg }) => {
+      if (msg.type === "load:progress") {
+        const p = msg.data.progress;
+        if (progressFill) progressFill.style.width = `${p}%`;
+        if (progressText) progressText.textContent = `${p}%`;
+      } else if (msg.type === "load:ready") {
+        this._vlmReady = true;
+        if (progress) progress.style.display = "none";
+        this.setStatus(status, translations[currentLang]["demos.vlm_ready"] || "Model ready", "success");
+        const btn = document.getElementById("vlmGenerate");
+        if (btn && this._vlmImageBase64) btn.disabled = false;
+      } else if (msg.type === "load:error") {
+        if (progress) progress.style.display = "none";
+        this.setStatus(status, msg.data.message, "error");
+      } else if (msg.type === "generate:token") {
+        const output = document.getElementById("vlmOutput");
+        if (output) {
+          // Remove cursor, append token, re-add cursor
+          const cursor = output.querySelector(".cursor");
+          if (cursor) cursor.remove();
+          output.textContent += msg.data.token;
+          const c = document.createElement("span");
+          c.className = "cursor";
+          output.appendChild(c);
+          output.scrollTop = output.scrollHeight;
+        }
+      } else if (msg.type === "generate:done") {
+        const output = document.getElementById("vlmOutput");
+        if (output) {
+          const cursor = output.querySelector(".cursor");
+          if (cursor) cursor.remove();
+        }
+        this.setStatus(status, translations[currentLang]["demos.vlm_done"] || "Generation complete", "success");
+        const btn = document.getElementById("vlmGenerate");
+        if (btn) {
+          btn.disabled = false;
+          const span = btn.querySelector("[data-i18n]");
+          if (span) span.textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+        }
+      } else if (msg.type === "generate:error") {
+        this.setStatus(status, msg.data.message, "error");
+        const btn = document.getElementById("vlmGenerate");
+        if (btn) {
+          btn.disabled = false;
+          const span = btn.querySelector("[data-i18n]");
+          if (span) span.textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+        }
+      }
+    };
+
+    this._vlmWorker.postMessage({ type: "load" });
+  },
+
+  generateVlm() {
+    const status = "vlmStatus";
+    const prompt = document.getElementById("vlmPrompt")?.value?.trim();
+    if (!this._vlmImageBase64 || !prompt) return;
+
+    const output = document.getElementById("vlmOutput");
+    if (output) {
+      output.style.display = "";
+      output.textContent = "";
+      const c = document.createElement("span");
+      c.className = "cursor";
+      output.appendChild(c);
+    }
+
+    const btn = document.getElementById("vlmGenerate");
+    if (btn) {
+      btn.disabled = true;
+      const span = btn.querySelector("[data-i18n]");
+      if (span) span.textContent = translations[currentLang]["demos.vlm_stop_gen"] || "Stop";
+      btn.disabled = false; // Keep clickable for abort
+    }
+
+    this.setStatus(status, translations[currentLang]["demos.vlm_generating"] || "Generating...", "loading");
+
+    const { maxTokens, temperature } = this.getVlmOpts();
+    this._vlmWorker.postMessage({
+      type: "generate",
+      data: { image: this._vlmImageBase64, prompt, maxTokens, temperature }
+    });
+  },
+
+  stopVlm() {
+    if (this._vlmWorker) {
+      this._vlmWorker.postMessage({ type: "abort" });
+    }
+    const output = document.getElementById("vlmOutput");
+    if (output) {
+      const cursor = output.querySelector(".cursor");
+      if (cursor) cursor.remove();
+    }
+  },
+
+  setVlmImage(base64) {
+    this._vlmImageBase64 = base64;
+    const preview = document.getElementById("vlmPreview");
+    if (preview) {
+      preview.src = base64;
+      preview.style.display = "";
+    }
+    this.hidePlaceholder("demo-vlm");
+    // Enable generate if model is ready
+    const btn = document.getElementById("vlmGenerate");
+    if (btn && this._vlmReady) btn.disabled = false;
+  },
+
   /* ---------- Cleanup ---------- */
   stopAll() {
     const detVideo = document.getElementById("detectionVideo");
     const poseVideo = document.getElementById("poseVideo");
-    this.stopWebcam(detVideo || poseVideo);
+    const vlmVideo = document.getElementById("vlmVideo");
+    this.stopWebcam(detVideo || poseVideo || vlmVideo);
+    if (this._vlmWorker) {
+      this._vlmWorker.terminate();
+      this._vlmWorker = null;
+      this._vlmReady = false;
+    }
     document.querySelectorAll(".demo-fps").forEach(el => el.textContent = "");
     document.querySelectorAll(".demo-status").forEach(el => { el.textContent = ""; el.className = "demo-status"; });
     document.querySelectorAll(".demo-start-btn").forEach(btn => {
@@ -454,6 +625,16 @@ const DemoEngine = {
       if (span) span.textContent = translations[currentLang]["demos.start"] || "Start Webcam";
     });
     document.querySelectorAll(".demo-placeholder").forEach(ph => ph.style.display = "");
+    // Reset VLM state
+    const vlmOutput = document.getElementById("vlmOutput");
+    if (vlmOutput) { vlmOutput.textContent = ""; vlmOutput.style.display = "none"; }
+    const vlmPreview = document.getElementById("vlmPreview");
+    if (vlmPreview) { vlmPreview.src = ""; vlmPreview.style.display = "none"; }
+    const vlmProgress = document.getElementById("vlmProgress");
+    if (vlmProgress) vlmProgress.style.display = "none";
+    this._vlmImageBase64 = null;
+    const vlmBtn = document.getElementById("vlmGenerate");
+    if (vlmBtn) vlmBtn.disabled = true;
   }
 };
 
@@ -528,12 +709,90 @@ function initDemos() {
     });
   }
 
+  // VLM — image upload
+  const vlmUpload = document.getElementById("vlmUpload");
+  if (vlmUpload) {
+    vlmUpload.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        DemoEngine.setVlmImage(reader.result);
+        DemoEngine.initVlm();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // VLM — webcam snapshot
+  const vlmSnap = document.getElementById("vlmSnapshot");
+  if (vlmSnap) {
+    vlmSnap.addEventListener("click", async () => {
+      const video = document.getElementById("vlmVideo");
+      try {
+        video.style.display = "";
+        await DemoEngine.startWebcam(video);
+        // Wait a moment for camera to stabilize
+        await new Promise(r => setTimeout(r, 500));
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        DemoEngine.stopWebcam(video);
+        video.style.display = "none";
+        DemoEngine.setVlmImage(canvas.toDataURL("image/jpeg", 0.85));
+        DemoEngine.initVlm();
+      } catch (err) {
+        DemoEngine.setStatus("vlmStatus", err.message || "Camera error", "error");
+        video.style.display = "none";
+      }
+    });
+  }
+
+  // VLM — prompt preset
+  const vlmPreset = document.getElementById("vlmPreset");
+  const vlmPrompt = document.getElementById("vlmPrompt");
+  if (vlmPreset && vlmPrompt) {
+    const presetKeys = {
+      describe: "demos.vlm_preset_describe",
+      objects: "demos.vlm_preset_objects",
+      scene: "demos.vlm_preset_scene"
+    };
+    vlmPreset.addEventListener("change", () => {
+      const key = presetKeys[vlmPreset.value];
+      if (key) {
+        vlmPrompt.value = translations[currentLang][key] || vlmPreset.options[vlmPreset.selectedIndex].textContent;
+      } else {
+        vlmPrompt.value = "";
+        vlmPrompt.focus();
+      }
+    });
+    // Set initial prompt
+    vlmPrompt.value = translations[currentLang]["demos.vlm_preset_describe"] || "Describe this image in detail";
+  }
+
+  // VLM — generate button
+  const vlmGen = document.getElementById("vlmGenerate");
+  if (vlmGen) {
+    vlmGen.addEventListener("click", () => {
+      if (vlmGen.querySelector("[data-i18n]")?.textContent === (translations[currentLang]["demos.vlm_stop_gen"] || "Stop")) {
+        DemoEngine.stopVlm();
+        vlmGen.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+        DemoEngine.setStatus("vlmStatus", "", "");
+      } else {
+        DemoEngine.generateVlm();
+      }
+    });
+  }
+
   // Range slider live value display
   const rangeBindings = [
     ["detConfidence", "detConfVal", v => `${v}%`],
     ["detMaxResults", "detMaxVal", v => v],
     ["poseNumPoses", "poseNumVal", v => v],
     ["poseConfidence", "poseConfVal", v => `${v}%`],
+    ["vlmMaxTokens", "vlmMaxVal", v => v],
+    ["vlmTemperature", "vlmTempVal", v => `${(v / 10).toFixed(1)}`],
   ];
   rangeBindings.forEach(([inputId, displayId, fmt]) => {
     const input = document.getElementById(inputId);
