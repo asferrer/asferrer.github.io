@@ -572,6 +572,33 @@
               <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.upload">Upload Image</span></span>
             </label>
           </div>
+          <div class="demo-options">
+            <label class="demo-option">
+              <span data-i18n="demos.filter_classes">Filter classes</span>
+              <select id="detClassFilter" multiple size="4">
+                <option value="all" selected data-i18n="demos.all_classes">All (80 classes)</option>
+                <option value="person">Person</option>
+                <option value="vehicle" data-i18n="demos.vehicles">Vehicles</option>
+                <option value="animal" data-i18n="demos.animals">Animals</option>
+                <option value="furniture" data-i18n="demos.furniture">Furniture</option>
+                <option value="food" data-i18n="demos.food">Food</option>
+              </select>
+            </label>
+            <label class="demo-option">
+              <span data-i18n="demos.confidence">Min confidence</span>
+              <div class="range-row">
+                <input type="range" id="detConfidence" min="10" max="95" value="50" step="5">
+                <span id="detConfVal" class="range-val">50%</span>
+              </div>
+            </label>
+            <label class="demo-option">
+              <span data-i18n="demos.max_det">Max detections</span>
+              <div class="range-row">
+                <input type="range" id="detMaxResults" min="1" max="30" value="20">
+                <span id="detMaxVal" class="range-val">20</span>
+              </div>
+            </label>
+          </div>
           <div class="demo-status" id="detectionStatus"></div>
           <div class="demo-fps" id="detectionFps"></div>
         </div>
@@ -593,6 +620,30 @@
               <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
             </button>
           </div>
+          <div class="demo-options">
+            <label class="demo-option">
+              <span data-i18n="demos.num_poses">Max poses</span>
+              <div class="range-row">
+                <input type="range" id="poseNumPoses" min="1" max="5" value="2">
+                <span id="poseNumVal" class="range-val">2</span>
+              </div>
+            </label>
+            <label class="demo-option">
+              <span data-i18n="demos.pose_confidence">Min confidence</span>
+              <div class="range-row">
+                <input type="range" id="poseConfidence" min="10" max="95" value="50" step="5">
+                <span id="poseConfVal" class="range-val">50%</span>
+              </div>
+            </label>
+            <label class="demo-option demo-checkbox">
+              <input type="checkbox" id="poseShowSkeleton" checked>
+              <span data-i18n="demos.show_skeleton">Show skeleton</span>
+            </label>
+            <label class="demo-option demo-checkbox">
+              <input type="checkbox" id="poseShowPoints" checked>
+              <span data-i18n="demos.show_keypoints">Show keypoints</span>
+            </label>
+          </div>
           <div class="demo-status" id="poseStatus"></div>
           <div class="demo-fps" id="poseFps"></div>
         </div>
@@ -613,6 +664,21 @@
             <label class="demo-upload-label">
               <input type="file" accept="image/*" id="depthUpload" hidden>
               <span class="btn btn-primary"><i class="fas fa-image"></i> <span data-i18n="demos.upload_image">Upload Image</span></span>
+            </label>
+          </div>
+          <div class="demo-options">
+            <label class="demo-option">
+              <span data-i18n="demos.colormap">Color map</span>
+              <select id="depthColormap">
+                <option value="grayscale" data-i18n="demos.grayscale">Grayscale</option>
+                <option value="inferno" selected>Inferno</option>
+                <option value="viridis">Viridis</option>
+                <option value="turbo">Turbo</option>
+              </select>
+            </label>
+            <label class="demo-option demo-checkbox">
+              <input type="checkbox" id="depthSideBySide" checked>
+              <span data-i18n="demos.side_by_side">Side by side comparison</span>
             </label>
           </div>
           <div class="demo-status" id="depthStatus"></div>
