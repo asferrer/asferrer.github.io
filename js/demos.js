@@ -47,6 +47,24 @@ const DemoEngine = {
     el.className = "demo-status" + (type ? ` demo-status-${type}` : "");
   },
 
+  hidePlaceholder(panelId) {
+    const ph = document.querySelector(`#${panelId} .demo-placeholder`);
+    if (ph) ph.style.display = "none";
+  },
+
+  showPlaceholder(panelId) {
+    const ph = document.querySelector(`#${panelId} .demo-placeholder`);
+    if (ph) ph.style.display = "";
+  },
+
+  resetButton(btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.classList.remove("running");
+    const span = btn.querySelector("[data-i18n]");
+    if (span) span.textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+  },
+
   /* ---------- FPS counter ---------- */
   createFpsCounter() {
     let frames = 0, lastTime = performance.now();
@@ -76,13 +94,17 @@ const DemoEngine = {
     const ctx = canvas.getContext("2d");
     const fpsEl = document.getElementById("detectionFps");
 
+    this.hidePlaceholder("demo-detection");
+
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading TensorFlow.js...", "loading");
       await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
       await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd");
 
       this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading COCO-SSD model (~2MB)...", "loading");
-      this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+      if (!this.models.detection) {
+        this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+      }
 
       this.setStatus(status, translations[currentLang]["demos.starting_cam"] || "Starting camera...", "loading");
       await this.startWebcam(video);
@@ -120,6 +142,7 @@ const DemoEngine = {
       detect();
     } catch (e) {
       this.setStatus(status, e.message || "Error loading demo", "error");
+      this.resetButton("startDetection");
     }
   },
 
@@ -127,6 +150,8 @@ const DemoEngine = {
     const status = "detectionStatus";
     const canvas = document.getElementById("detectionCanvas");
     const ctx = canvas.getContext("2d");
+
+    this.hidePlaceholder("demo-detection");
 
     if (!this.models.detection) {
       this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading model...", "loading");
@@ -170,24 +195,27 @@ const DemoEngine = {
     const ctx = canvas.getContext("2d");
     const fpsEl = document.getElementById("poseFps");
 
+    this.hidePlaceholder("demo-pose");
+
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading MediaPipe (~16MB)...", "loading");
-      await this.loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.js");
+      const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs");
 
       this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading Pose Landmarker model...", "loading");
 
-      const vision = window.vision || self.vision;
       const fileset = await vision.FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm"
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
-      this.models.pose = await vision.PoseLandmarker.createFromOptions(fileset, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-          delegate: "GPU"
-        },
-        runningMode: "VIDEO",
-        numPoses: 2
-      });
+      if (!this.models.pose) {
+        this.models.pose = await vision.PoseLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+            delegate: "GPU"
+          },
+          runningMode: "VIDEO",
+          numPoses: 2
+        });
+      }
 
       this.setStatus(status, translations[currentLang]["demos.starting_cam"] || "Starting camera...", "loading");
       await this.startWebcam(video);
@@ -238,6 +266,7 @@ const DemoEngine = {
       detect();
     } catch (e) {
       this.setStatus(status, e.message || "Error loading demo", "error");
+      this.resetButton("startPose");
     }
   },
 
@@ -248,6 +277,8 @@ const DemoEngine = {
     const status = "depthStatus";
     const canvas = document.getElementById("depthCanvas");
     const ctx = canvas.getContext("2d");
+
+    this.hidePlaceholder("demo-depth");
 
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading Depth Anything model (~27MB, first time only)...", "loading");
@@ -316,7 +347,11 @@ const DemoEngine = {
     document.querySelectorAll(".demo-start-btn").forEach(btn => {
       btn.disabled = false;
       btn.classList.remove("running");
+      const span = btn.querySelector("[data-i18n]");
+      if (span) span.textContent = translations[currentLang]["demos.start"] || "Start Webcam";
     });
+    // Restore placeholders
+    document.querySelectorAll(".demo-placeholder").forEach(ph => ph.style.display = "");
   }
 };
 

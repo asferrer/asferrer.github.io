@@ -204,7 +204,7 @@ section {
   border-radius: 1px;
 }
 
-.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-right { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1001; }
 
 .lang-toggle {
   background: rgba(255, 255, 255, 0.08);
@@ -236,6 +236,9 @@ section {
   transition: all var(--transition-normal);
   border-radius: 1px;
 }
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* ==============================
    HERO
@@ -1060,12 +1063,21 @@ section {
 }
 .cert-card:hover { transform: translateY(-3px); }
 .cert-icon {
-  font-size: 2rem;
-  color: #76b900; /* NVIDIA green */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  min-width: 60px;
+}
+.cert-logo {
+  width: 60px;
+  height: auto;
+}
+.ibm-logo {
+  width: 50px;
 }
 .cert-info h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
 .cert-issuer { font-size: 0.85rem; color: var(--text-secondary); }
-.cert-issuer i { color: #76b900; margin-right: 6px; }
 
 /* ==============================
    CONTACT
@@ -1243,10 +1255,11 @@ footer {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background: rgba(15, 25, 35, 0.97);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     align-items: center;
     justify-content: center;
     gap: 32px;
