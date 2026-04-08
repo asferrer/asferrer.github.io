@@ -928,14 +928,15 @@ section {
 }
 .demo-viewport canvas {
   max-width: 100%;
-  max-height: 480px;
+  max-height: clamp(260px, 50vw, 480px);
   border-radius: var(--radius-sm);
 }
 .demo-placeholder {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   text-align: center;
   padding: 40px 20px;
+  width: 100%;
 }
 
 /* VLM Demo */
@@ -946,12 +947,12 @@ section {
 .vlm-viewport video {
   position: relative !important;
   width: 100%;
-  max-height: 480px;
+  max-height: clamp(260px, 50vw, 480px);
   opacity: 1 !important;
   object-fit: contain;
 }
 .vlm-image-preview {
-  max-height: 480px;
+  max-height: clamp(260px, 50vw, 480px);
   max-width: 100%;
   object-fit: contain;
   border-radius: var(--radius-sm);
@@ -965,10 +966,11 @@ section {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
-  padding: 14px 18px;
+  padding: clamp(10px, 2vw, 18px);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 2.2vw, 0.95rem);
   line-height: 1.6;
+  text-align: center;
   max-height: 40%;
   overflow-y: auto;
   white-space: pre-wrap;
