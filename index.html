@@ -703,7 +703,7 @@
               <i class="fas fa-video"></i> <span data-i18n="demos.vlm_start_webcam">Start Live Caption</span>
             </button>
             <select class="vlm-presets" id="vlmPreset">
-              <option value="describe" data-i18n="demos.vlm_preset_describe">Describe this image in detail</option>
+              <option value="describe" data-i18n="demos.vlm_preset_describe">Briefly describe what you see in 1-2 sentences</option>
               <option value="objects" data-i18n="demos.vlm_preset_objects">What objects do you see?</option>
               <option value="scene" data-i18n="demos.vlm_preset_scene">What is happening in this scene?</option>
               <option value="custom" data-i18n="demos.vlm_preset_custom">Custom</option>
@@ -717,8 +717,8 @@
             <label class="demo-option">
               <span data-i18n="demos.vlm_max_tokens">Max tokens</span>
               <div class="range-row">
-                <input type="range" id="vlmMaxTokens" min="50" max="500" value="200" step="50">
-                <span id="vlmMaxVal" class="range-val">200</span>
+                <input type="range" id="vlmMaxTokens" min="30" max="500" value="80" step="10">
+                <span id="vlmMaxVal" class="range-val">80</span>
               </div>
             </label>
             <label class="demo-option">

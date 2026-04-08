@@ -960,6 +960,7 @@ section {
   white-space: pre-wrap;
   word-break: break-word;
   z-index: 5;
+  transition: opacity 0.2s ease;
 }
 .vlm-output .cursor {
   display: inline-block;
