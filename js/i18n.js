@@ -130,6 +130,8 @@ const translations = {
     "publications.read_paper": "Read Paper",
     "publications.award_title": "Best Paper Award",
     "publications.hackathon_desc": "Google Gemma3n Hackathon",
+    "publications.ferrovial_title": "AI Hackathon Winner",
+    "publications.ferrovial_desc": "Best Solution — Ferrovial & Microsoft",
     "publications.podcast_title": "PhD Research Podcast",
 
     // Certifications
@@ -286,6 +288,8 @@ const translations = {
     "publications.read_paper": "Leer Paper",
     "publications.award_title": "Mejor Paper",
     "publications.hackathon_desc": "Google Gemma3n Hackathon",
+    "publications.ferrovial_title": "Ganador AI Hackathon",
+    "publications.ferrovial_desc": "Mejor Solucion — Ferrovial & Microsoft",
     "publications.podcast_title": "Podcast de Investigacion Doctoral",
 
     // Certifications
