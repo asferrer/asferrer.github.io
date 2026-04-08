@@ -166,7 +166,7 @@ const translations = {
     "demos.vlm_done": "Generation complete",
     "demos.vlm_no_webgpu": "WebGPU is not supported in this browser. Try Chrome 113+ or Edge 113+.",
     "demos.vlm_no_gpu": "No compatible GPU found. WebGPU requires a dedicated or integrated GPU.",
-    "demos.vlm_placeholder": "Upload an image and enter a prompt to begin",
+    "demos.vlm_placeholder": "Click the VLM tab to start live webcam captioning",
     "demos.streamlit_link2": "For more demos and full project details, visit the",
 
     // Skills
@@ -392,7 +392,7 @@ const translations = {
     "demos.vlm_done": "Generacion completada",
     "demos.vlm_no_webgpu": "WebGPU no esta soportado en este navegador. Prueba Chrome 113+ o Edge 113+.",
     "demos.vlm_no_gpu": "No se encontro GPU compatible. WebGPU requiere GPU dedicada o integrada.",
-    "demos.vlm_placeholder": "Sube una imagen y escribe un prompt para empezar",
+    "demos.vlm_placeholder": "Pulsa la pestaña VLM para iniciar subtitulado en vivo",
     "demos.streamlit_link2": "Para mas demos y detalles de proyectos, visita el",
 
     // Skills

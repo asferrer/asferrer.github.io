@@ -926,31 +926,40 @@ section {
 
 /* VLM Demo */
 .vlm-viewport {
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  padding: 16px;
-  gap: 12px;
+  position: relative;
+  min-height: 420px;
+}
+.vlm-viewport video {
+  position: relative !important;
+  width: 100%;
+  max-height: 480px;
+  opacity: 1 !important;
+  object-fit: contain;
 }
 .vlm-image-preview {
-  max-height: 240px;
-  width: 100%;
+  max-height: 480px;
+  max-width: 100%;
   object-fit: contain;
   border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.2);
 }
 .vlm-output {
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: var(--radius-sm);
-  padding: 16px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: 14px 18px;
   color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.6;
-  max-height: 220px;
+  max-height: 40%;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  min-height: 60px;
+  z-index: 5;
 }
 .vlm-output .cursor {
   display: inline-block;

@@ -707,11 +707,6 @@ const DemoEngine = {
 
     this.hidePlaceholder("demo-vlm");
     video.style.display = "";
-    video.style.position = "relative";
-    video.style.opacity = "1";
-    video.style.maxHeight = "240px";
-    video.style.width = "100%";
-    video.style.objectFit = "contain";
 
     await this.startWebcam(video);
     await this.initVlm();
@@ -744,11 +739,7 @@ const DemoEngine = {
     this._vlmCaptionPending = false;
     const video = document.getElementById("vlmVideo");
     this.stopWebcam(video);
-    if (video) {
-      video.style.display = "none";
-      video.style.position = "";
-      video.style.opacity = "";
-    }
+    if (video) video.style.display = "none";
     this.stopVlm();
   },
 
@@ -763,7 +754,7 @@ const DemoEngine = {
     this.stopWebcam(depthVideo);
     this._vlmWebcamActive = false;
     this.stopWebcam(vlmVideo);
-    if (vlmVideo) { vlmVideo.style.display = "none"; vlmVideo.style.opacity = ""; vlmVideo.style.position = ""; }
+    if (vlmVideo) vlmVideo.style.display = "none";
     if (this._vlmWorker) {
       this._vlmWorker.terminate();
       this._vlmWorker = null;
@@ -811,6 +802,11 @@ function initDemos() {
       document.querySelectorAll(".demo-content").forEach(d => d.classList.add("hidden"));
       const target = document.getElementById(`demo-${tab.dataset.demo}`);
       if (target) target.classList.remove("hidden");
+      // Auto-start webcam captioning when VLM tab is selected
+      if (tab.dataset.demo === "vlm") {
+        const wcBtn = document.getElementById("vlmWebcamBtn");
+        if (wcBtn && !DemoEngine._vlmWebcamActive) wcBtn.click();
+      }
     });
   });
 
