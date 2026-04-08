@@ -115,7 +115,7 @@ const translations = {
     "education.title": "Education",
     "education.present": "Present",
     "education.phd_title": "PhD in Computer Vision",
-    "education.phd_desc": "Research on synthetic data generation and diffusion models for robust vision systems in complex underwater environments.",
+    "education.phd_desc": "Research on synthetic data generation and diffusion models for robust vision systems in complex underwater environments. PRAIG Research Group.",
     "education.msc_title": "MSc in Automation & Robotics",
     "education.honors": "Honors — Best Final Project",
     "education.bsc_title": "BSc in Robotic Engineering",

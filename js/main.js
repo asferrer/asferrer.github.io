@@ -10,7 +10,22 @@ document.addEventListener("DOMContentLoaded", () => {
   initContactForm();
   initPodcastToggle();
   initBackToTop();
+  initImageFallbacks();
 });
+
+/* ==============================
+   IMAGE FALLBACKS
+   ============================== */
+function initImageFallbacks() {
+  document.querySelectorAll(".project-logos img").forEach(img => {
+    img.addEventListener("error", function () {
+      const span = document.createElement("span");
+      span.className = "logo-text";
+      span.textContent = this.alt;
+      this.parentNode.replaceChild(span, this);
+    });
+  });
+}
 
 /* ==============================
    NAVIGATION
