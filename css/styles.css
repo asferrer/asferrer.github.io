@@ -1266,15 +1266,16 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  min-width: 60px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
 }
 .cert-logo {
-  width: 60px;
+  width: 100%;
   height: auto;
 }
 .ibm-logo {
-  width: 50px;
+  width: 42px;
 }
 .cert-info h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
 .cert-issuer { font-size: 0.85rem; color: var(--text-secondary); }

@@ -7,7 +7,7 @@ import {
   AutoProcessor,
   AutoModelForVision2Seq,
   TextStreamer,
-  RawImage,
+  load_image,
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers";
 
 const MODEL_ID = "HuggingFaceTB/SmolVLM-256M-Instruct";
@@ -72,20 +72,20 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
   aborted = false;
 
   try {
-    const rawImage = await RawImage.fromURL(image);
+    const img = await load_image(image);
 
     const messages = [
       {
         role: "user",
         content: [
-          { type: "image" },
+          { type: "image", image },
           { type: "text", text: prompt }
         ]
       }
     ];
 
     const text = processor.apply_chat_template(messages, { add_generation_prompt: true });
-    const inputs = await processor(rawImage, text);
+    const inputs = await processor(text, [img]);
 
     let fullText = "";
     const streamer = new TextStreamer(processor.tokenizer, {
