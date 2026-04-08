@@ -932,11 +932,16 @@ section {
   border-radius: var(--radius-sm);
 }
 .demo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
   font-size: clamp(0.8rem, 2vw, 0.95rem);
   text-align: center;
   padding: 40px 20px;
-  width: 100%;
+  z-index: 2;
 }
 
 /* VLM Demo */
