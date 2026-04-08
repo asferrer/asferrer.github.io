@@ -689,10 +689,16 @@ const DemoEngine = {
 
     this.setStatus(status, translations[currentLang]["demos.vlm_generating"] || "Generating...", "loading");
 
+    // Append language hint based on current page language
+    let finalPrompt = prompt;
+    if (typeof currentLang !== "undefined" && currentLang === "es") {
+      finalPrompt += " Responde en espanol.";
+    }
+
     const { maxTokens, temperature } = this.getVlmOpts();
     this._vlmWorker.postMessage({
       type: "generate",
-      data: { image: this._vlmImageBase64, prompt, maxTokens, temperature }
+      data: { image: this._vlmImageBase64, prompt: finalPrompt, maxTokens, temperature }
     });
   },
 

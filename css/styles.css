@@ -744,18 +744,6 @@ section {
   font-size: 1.15rem;
   margin-bottom: 8px;
 }
-.demo-model-info {
-  font-size: 0.85rem;
-  color: var(--accent-pink);
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-.demo-model-meta {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
 .demo-controls {
   display: flex;
   flex-direction: column;
@@ -772,11 +760,37 @@ section {
   background: #b91c1c;
 }
 
+.demo-options-collapsible {
+  margin-bottom: 14px;
+}
+.demo-options-collapsible summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-options-collapsible summary::before {
+  content: "\f078";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 0.65rem;
+  transition: transform var(--transition-fast);
+}
+.demo-options-collapsible[open] summary::before {
+  transform: rotate(180deg);
+}
+.demo-options-collapsible summary::-webkit-details-marker { display: none; }
 .demo-options {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 14px;
   padding: 12px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-sm);
