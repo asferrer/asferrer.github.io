@@ -53,7 +53,7 @@ async function handleLoad() {
     });
 
     model = await AutoModelForVision2Seq.from_pretrained(MODEL_ID, {
-      dtype: "q4f16",
+      dtype: "fp32",
       device: "webgpu",
       progress_callback: (p) => {
         if (p.progress != null) {
@@ -101,8 +101,8 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
     await model.generate({
       ...inputs,
       max_new_tokens: maxTokens || 200,
-      temperature: temperature || 0.3,
-      do_sample: temperature > 0,
+      do_sample: false,
+      repetition_penalty: 1.2,
       streamer,
     });
 
