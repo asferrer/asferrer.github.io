@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alejandro Sanchez Ferrer | Senior AI Solutions Architect</title>
+  <meta name="description" content="Portfolio of Alejandro Sanchez Ferrer — Senior AI Solutions Architect, PhD Researcher in Computer Vision. 28+ production deployments across edge, cloud, and on-prem.">
+  <meta name="keywords" content="Computer Vision, AI, Deep Learning, Robotics, Solutions Architect, NVIDIA, PyTorch, TensorRT">
+  <meta name="author" content="Alejandro Sanchez Ferrer">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Alejandro Sanchez Ferrer | Senior AI Solutions Architect">
+  <meta property="og:description" content="Senior AI Solutions Architect & PhD Researcher. 28+ production CV deployments across edge, cloud, and on-prem.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://asferrer.github.io">
+  <meta property="og:image" content="https://asferrer.github.io/assets/profile_photo.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/logo.ico" type="image/x-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Alejandro Sanchez Ferrer",
+    "jobTitle": "Senior AI Solutions Architect",
+    "url": "https://asferrer.github.io",
+    "sameAs": [
+      "https://www.linkedin.com/in/alejandro-sanchez-ferrer/",
+      "https://github.com/asferrer",
+      "https://www.youtube.com/@alejandrosanchezferrer9576"
+    ],
+    "worksFor": { "@type": "Organization", "name": "Minsait (Indra)" },
+    "alumniOf": [
+      { "@type": "CollegeOrUniversity", "name": "University of Alicante" },
+      { "@type": "CollegeOrUniversity", "name": "Arizona State University" }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <nav id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">ASF</a>
+      <div class="nav-links" id="navLinks">
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="#experience" data-i18n="nav.experience">Experience</a>
+        <a href="#projects" data-i18n="nav.projects">Projects</a>
+        <a href="#skills" data-i18n="nav.skills">Skills</a>
+        <a href="#education" data-i18n="nav.education">Education</a>
+        <a href="#publications" data-i18n="nav.publications">Publications</a>
+        <a href="#certifications" data-i18n="nav.certifications">Certifications</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+      </div>
+      <div class="nav-right">
+        <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+          <span class="lang-flag">EN</span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section id="hero">
+    <canvas id="particlesCanvas"></canvas>
+    <div class="hero-content">
+      <div class="profile-photo">
+        <div class="spin-container">
+          <div class="morph-shape">
+            <div class="morph-inner">
+              <img src="assets/profile_photo.jpg" alt="Alejandro Sanchez Ferrer" loading="eager">
+            </div>
+          </div>
+        </div>
+      </div>
+      <h1 data-i18n="hero.name">Alejandro Sanchez Ferrer</h1>
+      <h2 data-i18n="hero.title">Senior AI Solutions Architect & PhD Researcher</h2>
+      <p class="hero-tagline" data-i18n="hero.tagline">Building production-ready computer vision systems from edge devices to the cloud</p>
+      <div class="hero-ctas">
+        <a href="#projects" class="btn btn-primary" data-i18n="hero.cta_projects">View Projects</a>
+        <a href="assets/Alejandro_Sanchez_Ferrer_CV.pdf" class="btn btn-outline" download data-i18n="hero.cta_cv">Download CV</a>
+        <a href="#contact" class="btn btn-outline" data-i18n="hero.cta_contact">Get in Touch</a>
+      </div>
+      <div class="social-links">
+        <a href="https://www.linkedin.com/in/alejandro-sanchez-ferrer/" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/asferrer" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.youtube.com/@alejandrosanchezferrer9576/videos" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://soundcloud.com/alejandro-sanchez-ferrer-2460710" target="_blank" rel="noopener" aria-label="SoundCloud"><i class="fab fa-soundcloud"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT ========== -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title" data-i18n="about.title">About Me</h2>
+      <div class="about-grid">
+        <div class="about-text" data-reveal="left">
+          <p data-i18n="about.p1">Senior AI Solutions Architect and PhD researcher with 5+ years delivering Computer Vision and Deep Learning solutions for urban infrastructure, public transport, traffic management, and environmental safety.</p>
+          <p data-i18n="about.p2">Hands-on expertise across the full AI lifecycle — from VLM fine-tuning (SFT, LoRA, QLoRA) and production optimization (TensorRT, Triton) to edge, cloud, and on-prem deployments. Proven track record building AI-powered solutions at city and regional scale across Spain, Europe, and the United States.</p>
+          <p data-i18n="about.p3">Customer-facing technical expert, effective in partnering with Sales, Product, and Engineering stakeholders to translate mission goals into successful AI-enabled deliveries. Adjunct Professor of AI and active technical contributor through publications, open-source projects, and community engagement.</p>
+        </div>
+        <div class="about-stats" data-reveal="right">
+          <div class="stat-card glass-card">
+            <span class="stat-number" data-count="28">0</span><span class="stat-plus">+</span>
+            <span class="stat-label" data-i18n="about.stat_deployments">Production Deployments</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="stat-number" data-count="5">0</span>
+            <span class="stat-label" data-i18n="about.stat_teams">Engineering Teams Led</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="stat-number" data-count="8">0</span><span class="stat-plus">+</span>
+            <span class="stat-label" data-i18n="about.stat_products">CV Products Shipped</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="stat-number" data-count="80">0</span><span class="stat-plus">%</span>
+            <span class="stat-label" data-i18n="about.stat_latency">Latency Reduction</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EXPERIENCE ========== -->
+  <section id="experience">
+    <div class="container">
+      <h2 class="section-title" data-i18n="experience.title">Experience</h2>
+      <div class="timeline">
+        <!-- Minsait -->
+        <div class="timeline-item" data-reveal="left">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content glass-card">
+            <div class="timeline-header">
+              <div>
+                <h3>Minsait (Indra Group)</h3>
+                <span class="timeline-role" data-i18n="experience.minsait_role">Senior AI Solutions Architect & Technical Lead</span>
+              </div>
+              <span class="timeline-date">Jun 2021 — <span data-i18n="experience.present">Present</span></span>
+            </div>
+            <p class="timeline-location"><i class="fas fa-map-marker-alt"></i> Madrid / Alicante, Spain</p>
+            <ul class="timeline-bullets">
+              <li data-i18n="experience.minsait_1">Defined technical roadmap and methodology for up to 5 engineering teams (Backend, Data, Deployment), establishing best practices for development and testing.</li>
+              <li data-i18n="experience.minsait_2">Led design and deployment of 8+ Computer Vision products across urban, transport, energy, and environmental sectors in Spain, Europe, and the US.</li>
+              <li data-i18n="experience.minsait_3">Architected scalable, low-latency pipelines for 24/7 vision inference; reduced inference latency by over 80% (from +1s to sub-200ms).</li>
+              <li data-i18n="experience.minsait_4">Led technical engagement with enterprise clients, building PoCs, demos, and advising on successful solution delivery.</li>
+            </ul>
+          </div>
+        </div>
+        <!-- IFFE -->
+        <div class="timeline-item" data-reveal="right">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content glass-card">
+            <div class="timeline-header">
+              <div>
+                <h3>IFFE Business School</h3>
+                <span class="timeline-role" data-i18n="experience.iffe_role">Adjunct Professor (Master in AI)</span>
+              </div>
+              <span class="timeline-date">Oct 2024 — Jul 2025</span>
+            </div>
+            <p class="timeline-location"><i class="fas fa-map-marker-alt"></i> A Coruna, Spain</p>
+            <ul class="timeline-bullets">
+              <li data-i18n="experience.iffe_1">Instructed graduate-level course on "Principles of Robotic Autonomy," covering perception, navigation, computer vision, and multimodal AI.</li>
+              <li data-i18n="experience.iffe_2">Developed and delivered technical presentations and educational materials on complex AI topics.</li>
+            </ul>
+          </div>
+        </div>
+        <!-- uWare -->
+        <div class="timeline-item" data-reveal="left">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content glass-card">
+            <div class="timeline-header">
+              <div>
+                <h3>uWare Robotics</h3>
+                <span class="timeline-role" data-i18n="experience.uware_role">Robotics Engineer (Intern)</span>
+              </div>
+              <span class="timeline-date">Jan 2021 — May 2021</span>
+            </div>
+            <p class="timeline-location"><i class="fas fa-map-marker-alt"></i> Alicante, Spain</p>
+            <ul class="timeline-bullets">
+              <li data-i18n="experience.uware_1">Developed and optimized real-time control modules in Python and ROS for autonomous underwater vehicles (AUVs).</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Embention -->
+        <div class="timeline-item" data-reveal="right">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content glass-card">
+            <div class="timeline-header">
+              <div>
+                <h3>Embention</h3>
+                <span class="timeline-role" data-i18n="experience.embention_role">Software Verification Engineer (Intern)</span>
+              </div>
+              <span class="timeline-date">Jun 2019 — Aug 2019</span>
+            </div>
+            <p class="timeline-location"><i class="fas fa-map-marker-alt"></i> Alicante, Spain</p>
+            <ul class="timeline-bullets">
+              <li data-i18n="experience.embention_1">Implemented and verified safety-critical drone flight control algorithms in C/C++14/17 on a real-time Linux-based embedded system.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROJECTS ========== -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title" data-i18n="projects.title">Projects</h2>
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all" data-i18n="projects.filter_all">All</button>
+        <button class="filter-btn" data-filter="professional" data-i18n="projects.filter_pro">Professional</button>
+        <button class="filter-btn" data-filter="academic" data-i18n="projects.filter_acad">Academic</button>
+      </div>
+      <div class="projects-grid">
+
+        <!-- === PROFESSIONAL PROJECTS === -->
+
+        <!-- Q-SPAM -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/Hir720g__4s/hqdefault.jpg')">
+            <div class="project-logos">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqtXVuZsqx3X6vs868dL1GPM890C8wmmcNkA&s" alt="Minsait">
+            </div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.qspam_title">Q-SPAM | Quadruped Surveillance Platform</h3>
+            <p data-i18n="projects.qspam_desc">Quadruped robot with AI for real-time detection, tracking, pose estimation and multimodal reasoning.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.qspam_details">This project, created in partnership with Minsait, integrates a quantized VLM into a quadruped robot for real-time query-based reasoning, tracking, and behavior recognition, demonstrating Physical AI in edge-constrained environments. The robot is equipped with a high-resolution camera enabling seamless detection, tracking, pose estimation, and behavior analysis of individuals.</p>
+            <div class="project-video" data-video="Hir720g__4s"></div>
+            <div class="project-links">
+              <a href="https://www.youtube.com/watch?v=QZOJGdqfOd8" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> Press release</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- WindEye (VIRDS) -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/9k5COcxc4zU/hqdefault.jpg')">
+            <div class="project-logos">
+              <img src="https://logos-world.net/wp-content/uploads/2020/02/Iberdrola-Logo-500x281.png" alt="Iberdrola">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Repsol_company_logo.svg/140px-Repsol_company_logo.svg.png" alt="Repsol">
+              <img src="https://discovertemplate.com/wp-content/uploads/2024/03/Naturgy.jpg" alt="Naturgy">
+            </div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.windeye_title">WindEye | Vision Integrated Radar Detection</h3>
+            <p data-i18n="projects.windeye_desc">Multi-sensor bird detection in wind farms integrating vision and radar. 8+ wind farms deployed.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.windeye_details">Multi-sensor detection system integrating vision and radar to classify endangered bird species and trigger automatic turbine shutdown. Deployed in 8+ wind farms across Spain, supporting environmental regulation compliance. Utilizes 3D radar technologies and high-resolution video capture to detect and classify birds in real time.</p>
+            <div class="project-video" data-video="9k5COcxc4zU"></div>
+            <div class="project-links">
+              <a href="https://cincodias.elpais.com/companias/2023-10-09/la-inteligencia-artificial-sobrevuela-los-parques-eolicos.html" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> El Pais</a>
+              <a href="https://www.minsait.com/es/actualidad/media-room/minsait-ayuda-reducir-la-siniestralidad-de-las-aves-en-los-parques-eolicos-con" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> Minsait</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- GridEye (SWFD) -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/KSp5Ly1fC1Q/hqdefault.jpg')">
+            <div class="project-logos">
+              <img src="https://discovertemplate.com/wp-content/uploads/2024/03/Naturgy.jpg" alt="Naturgy">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Viesgo.svg/2560px-Viesgo.svg.png" alt="Viesgo">
+            </div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.grideye_title">GridEye | Smart Wildfire Detection</h3>
+            <p data-i18n="projects.grideye_desc">Solar-powered early wildfire detection with Transformers on Jetson Nano/Orin. 20+ devices deployed.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.grideye_details">Compact, solar-powered early wildfire detection system using Transformer models optimized with TensorRT for Jetson Nano/Orin Nano. Deployed in 20+ devices across Spain for public safety and environmental protection. Winner of the Enertic Award for predictive maintenance innovation.</p>
+            <div class="project-video" data-video="KSp5Ly1fC1Q"></div>
+            <div class="project-links">
+              <a href="https://www.minsait.com/en/news/media-room/naturgy-and-minsait-win-enertic-award-their-green-solution-prevent-fires-using" target="_blank" rel="noopener"><i class="fas fa-trophy"></i> Enertic Award</a>
+              <a href="https://enertic.org/fire-detection/" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> Enertic</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- BESOS (Smart Surveillance) -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/4Gx5RGKVLDY/hqdefault.jpg')">
+            <div class="project-logos">
+              <img src="https://logos-world.net/wp-content/uploads/2023/05/Enel-Logo-500x281.png" alt="Enel">
+            </div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.besos_title">BESOS | Smart Emissions Monitoring</h3>
+            <p data-i18n="projects.besos_desc">Real-time emissions monitoring for power plants using Computer Vision and IoT.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.besos_details">Intelligent surveillance platform for Endesa/Enel, monitoring power plant emissions with advanced Computer Vision algorithms detecting anomalies such as smoke, foam, debris, and thermal irregularities. Critical for maintaining ecological balance and ensuring regulatory compliance in energy production facilities.</p>
+            <div class="project-video" data-video="4Gx5RGKVLDY"></div>
+            <div class="project-links">
+              <a href="https://www.linkedin.com/posts/plaiground_casoaezxito-plaiground-activity-6991392128216014848-YrFe" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> Press release</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEAT QA -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/aEZgLayzyIA/hqdefault.jpg')">
+            <div class="project-logos">
+              <img src="https://logos-world.net/wp-content/uploads/2021/10/SEAT-Logo-700x394.png" alt="SEAT">
+            </div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.seat_title">Automated Quality Assurance — SEAT</h3>
+            <p data-i18n="projects.seat_desc">Computer vision inspection for electric track systems in vehicle assembly lines.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.seat_details">Developed for SEAT, this project applies computer vision to enhance reliability of electric track systems in vehicle assembly lines. Advanced image processing algorithms provide real-time surveillance over transport rails, proactively identifying defects and deviations from standards.</p>
+            <div class="project-video" data-video="aEZgLayzyIA"></div>
+            <div class="project-links">
+              <a href="https://www.minsait.com/es/actualidad/insights/el-caso-de-seat-casoy-implantar-la-ia-y-la-vision-artificial-para-evitar-paradas" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> Minsait</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobeye -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #f63366 100%)">
+            <div class="project-thumb-icon"><i class="fas fa-train-subway"></i></div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.mobeye_title">Mobeye | Metro Access Control</h3>
+            <p data-i18n="projects.mobeye_desc">Real-time person tracking and tailgating detection embedded in metro access gates.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.mobeye_details">Real-time person tracking and tailgating detection system embedded in metro access gates for a major transport operator, enhancing public transport safety and access control. Uses computer vision to detect unauthorized entries and ensure passenger flow management.</p>
+          </div>
+        </div>
+
+        <!-- Traffic Control Copilot -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #007bff 100%)">
+            <div class="project-thumb-icon"><i class="fas fa-traffic-light"></i></div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.copilot_title">Traffic Control Copilot</h3>
+            <p data-i18n="projects.copilot_desc">AI-powered traffic sign detection and compliance verification on Azure. Deployed in Texas, USA.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.copilot_details">AI-powered traffic sign detection, tracking, classification, and automated compliance verification against construction blueprints. Deployed on Azure cloud with Computer Vision and Generative AI for a leading infrastructure company in Texas, USA.</p>
+          </div>
+        </div>
+
+        <!-- FishEye -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #00c9a7 100%)">
+            <div class="project-thumb-icon"><i class="fas fa-video"></i></div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.fisheye_title">FishEye | Retail Analytics</h3>
+            <p data-i18n="projects.fisheye_desc">Real-time person monitoring with ceiling-mounted fisheye cameras for telecom retail.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.fisheye_details">Real-time person monitoring using ceiling-mounted fisheye cameras for a major telecom retailer, extracting operational KPIs (foot traffic, wait times, heatmaps) to improve service delivery and citizen experience. Provides actionable insights for store optimization.</p>
+          </div>
+        </div>
+
+        <!-- === ACADEMIC PROJECTS === -->
+
+        <!-- OceanGuard AI -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/4YRmgjpFcSI/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.ocean_title">OceanGuard AI — Marine Pollution Monitoring</h3>
+            <p data-i18n="projects.ocean_desc">AI-powered platform for on-device marine pollution analysis using fine-tuned Gemma3n VLM.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.ocean_details">Comprehensive platform for monitoring marine pollution using on-device AI. Automatically detects and classifies debris from images, visualizes data on an interactive map, and generates detailed reports with mitigation strategies. Built with a fine-tuned Gemma3n VLM for the Google Gemma3n Hackathon.</p>
+            <div class="project-video" data-video="4YRmgjpFcSI"></div>
+            <div class="project-links">
+              <a href="https://github.com/asferrer/OceanGuard-AI" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+              <a href="https://www.kaggle.com/competitions/google-gemma-3n-hackathon/writeups/oceanguard-ai-mapping-and-mitigating-marine-pollut" target="_blank" rel="noopener"><i class="fab fa-kaggle"></i> Kaggle</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Myoelectric Robot -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/hy036HAAO_I/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.myo_title">Myoelectric Mobile Robot Control</h3>
+            <p data-i18n="projects.myo_desc">Robot control using myoelectric signals with dynamic obstacle avoidance and person tracking.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.myo_details">Control system for a mobile robot combining myoelectric control with proximity sensors for obstacle avoidance and active tracking of people in real time. A robust algorithm was implemented to ensure safe navigation in dynamic environments.</p>
+            <div class="project-video" data-video="hy036HAAO_I"></div>
+          </div>
+        </div>
+
+        <!-- UR3 UI -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/1C7XX2SKViU/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.ur3_title">UI Design for Collaborative UR3 Robot</h3>
+            <p data-i18n="projects.ur3_desc">Intuitive interface for comprehensive control of a collaborative UR3 robot.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.ur3_details">Designed an intuitive and functional UI for comprehensive control of a collaborative UR3 robot. The interface allows real-time monitoring and execution of various functions, facilitating seamless interaction between operator and robot.</p>
+            <div class="project-video" data-video="1C7XX2SKViU"></div>
+          </div>
+        </div>
+
+        <!-- Chess Robot -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/d6XI9-VpcYk/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.chess_title">Real-Time Chess with IRB120 and AI</h3>
+            <p data-i18n="projects.chess_desc">AI-powered chess system with an IRB120 industrial robot playing in real time.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.chess_details">System where an IRB120 robot, assisted by AI algorithms, plays chess in real time. It can control both sides or enable remote play, offering an interactive and challenging experience in human-robot interaction.</p>
+            <div class="project-video" data-video="d6XI9-VpcYk"></div>
+          </div>
+        </div>
+
+        <!-- Bomb Extraction -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/d41BCF-nmO4/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.bomb_title">Multi-Robot Bomb Extraction Simulation</h3>
+            <p data-i18n="projects.bomb_desc">Collaborative multi-robot strategies for bomb extraction and safe transportation.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.bomb_details">Multi-robot system simulating collaborative strategies for bomb extraction and safe transportation. Coordination and simulation algorithms replicate team behavior in high-risk scenarios.</p>
+            <div class="project-video" data-video="d41BCF-nmO4"></div>
+          </div>
+        </div>
+
+        <!-- Warehouse -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/2hLlWaipfdg/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.warehouse_title">Intelligent Warehouse System Simulation</h3>
+            <p data-i18n="projects.warehouse_desc">Multi-robot product collection system for intelligent warehouse logistics.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.warehouse_details">System of collaborative robots for collecting and transporting products within an intelligent warehouse. Optimizes internal logistics and improves operational efficiency through real-time planning and control algorithms.</p>
+            <div class="project-video" data-video="2hLlWaipfdg"></div>
+          </div>
+        </div>
+
+        <!-- Line Following -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/CxlNpLdAw6g/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.line_title">Multi-Robot Line Following System</h3>
+            <p data-i18n="projects.line_desc">Coordinated multi-robot line-following on a circuit track.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.line_details">Multiple robots coordinating to perform a line-following task on a circuit. Collaborative control and communication algorithms ensure precise and coordinated execution.</p>
+            <div class="project-video" data-video="CxlNpLdAw6g"></div>
+          </div>
+        </div>
+
+        <!-- Candy Crush -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/i5Lf7uZqm30/hqdefault.jpg')">
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.candy_title">Candy Crush Bot — Classical Vision</h3>
+            <p data-i18n="projects.candy_desc">Automated gameplay bot using classical computer vision algorithms.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.candy_details">Bot that uses classical computer vision methods to interpret game state and make real-time decisions for playing Candy Crush. Automates gameplay providing an innovative solution in game automation.</p>
+            <div class="project-video" data-video="i5Lf7uZqm30"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SKILLS ========== -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title" data-i18n="skills.title">Skills</h2>
+      <div class="skills-grid">
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-brain"></i></div>
+          <h3 data-i18n="skills.multimodal">Multimodal AI</h3>
+          <div class="skill-tags">
+            <span>VLMs</span><span>Transformers</span><span>RAG</span><span>Physical AI</span><span>Multimodal Reasoning</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-network-wired"></i></div>
+          <h3 data-i18n="skills.dl">Deep Learning Frameworks</h3>
+          <div class="skill-tags">
+            <span>PyTorch</span><span>TensorFlow</span><span>FastAPI</span><span>NVIDIA NeMo</span><span>TensorRT</span><span>Triton</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-sliders-h"></i></div>
+          <h3 data-i18n="skills.tuning">Model Tuning & Optimization</h3>
+          <div class="skill-tags">
+            <span>SFT</span><span>LoRA</span><span>QLoRA</span><span>CUDA</span><span>Inference Benchmarking</span><span>Synthetic Data</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-microchip"></i></div>
+          <h3 data-i18n="skills.integration">System Integration</h3>
+          <div class="skill-tags">
+            <span>Python</span><span>C++14/17/20</span><span>ROS</span><span>Docker</span><span>Real-Time Pipelines</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-cloud"></i></div>
+          <h3 data-i18n="skills.cloud">Cloud & MLOps</h3>
+          <div class="skill-tags">
+            <span>Azure ML</span><span>AKS/EKS/GKE</span><span>CI/CD</span><span>Automated Testing</span><span>Monitoring</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-server"></i></div>
+          <h3 data-i18n="skills.deployment">Deployment</h3>
+          <div class="skill-tags">
+            <span>Jetson Nano/Orin</span><span>On-Premise GPU</span><span>Cloud-Native</span><span>Edge AI</span>
+          </div>
+        </div>
+        <div class="skill-card glass-card" data-reveal="up">
+          <div class="skill-icon"><i class="fas fa-language"></i></div>
+          <h3 data-i18n="skills.languages">Languages</h3>
+          <div class="skill-tags">
+            <span>Spanish (Native)</span><span>Catalan (Native)</span><span>English (C1)</span><span>French (A2)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EDUCATION ========== -->
+  <section id="education">
+    <div class="container">
+      <h2 class="section-title" data-i18n="education.title">Education</h2>
+      <div class="education-grid">
+        <div class="edu-card glass-card" data-reveal="up">
+          <div class="edu-icon"><i class="fas fa-graduation-cap"></i></div>
+          <h3 data-i18n="education.phd_title">PhD in Computer Vision</h3>
+          <p class="edu-school">University of Alicante</p>
+          <span class="edu-date">2023 — <span data-i18n="education.present">Present</span></span>
+          <p class="edu-desc" data-i18n="education.phd_desc">Research on synthetic data generation and diffusion models for robust vision systems in complex underwater environments.</p>
+        </div>
+        <div class="edu-card glass-card" data-reveal="up">
+          <div class="edu-icon"><i class="fas fa-graduation-cap"></i></div>
+          <h3 data-i18n="education.msc_title">MSc in Automation & Robotics</h3>
+          <p class="edu-school">University of Alicante</p>
+          <span class="edu-date">2022 — 2023</span>
+          <span class="edu-honors"><i class="fas fa-award"></i> <span data-i18n="education.honors">Honors — Best Final Project</span></span>
+        </div>
+        <div class="edu-card glass-card" data-reveal="up">
+          <div class="edu-icon"><i class="fas fa-graduation-cap"></i></div>
+          <h3 data-i18n="education.bsc_title">BSc in Robotic Engineering</h3>
+          <p class="edu-school">University of Alicante</p>
+          <span class="edu-date">2016 — 2021</span>
+          <span class="edu-honors"><i class="fas fa-award"></i> <span data-i18n="education.honors_bsc">Honors — Best Final Degree Project</span></span>
+        </div>
+        <div class="edu-card glass-card" data-reveal="up">
+          <div class="edu-icon"><i class="fas fa-plane"></i></div>
+          <h3 data-i18n="education.exchange_title">Exchange Program</h3>
+          <p class="edu-school">Arizona State University</p>
+          <span class="edu-date">2019 — 2020</span>
+          <p class="edu-desc" data-i18n="education.exchange_desc">Mechatronics, Robotics & Automation Engineering — Tempe, AZ, USA</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PUBLICATIONS ========== -->
+  <section id="publications">
+    <div class="container">
+      <h2 class="section-title" data-i18n="publications.title">Publications & Awards</h2>
+
+      <!-- Papers -->
+      <div class="publications-grid">
+        <div class="pub-card glass-card" data-reveal="left">
+          <div class="pub-thumb" style="background-image:url('https://ars.els-cdn.com/content/image/1-s2.0-S0167865522003889-gr1_lrg.jpg')"></div>
+          <div class="pub-content">
+            <h3 data-i18n="publications.paper1_title">An Experimental Study on Marine Debris Location and Recognition using Object Detection</h3>
+            <p class="pub-meta"><strong>Elsevier</strong> — Pattern Recognition Letters, 2023</p>
+            <p class="pub-authors">A. Sanchez Ferrer, J. Calvo Zaragoza, A.J. Gallego, J.J. Valero Mas</p>
+            <a href="https://www.sciencedirect.com/science/article/pii/S0167865522003889" target="_blank" rel="noopener" class="btn btn-small" data-i18n="publications.read_paper">Read Paper</a>
+          </div>
+        </div>
+        <div class="pub-card glass-card" data-reveal="right">
+          <div class="pub-thumb" style="background-image:url('https://ars.els-cdn.com/content/image/1-s2.0-S0167865522003889-gr3_lrg.jpg')"></div>
+          <div class="pub-content">
+            <h3 data-i18n="publications.paper2_title">The CleanSea Set: A Benchmark Corpus for Underwater Debris Detection and Recognition</h3>
+            <p class="pub-meta"><strong>Springer</strong> — Lecture Notes in Computer Science, 2022</p>
+            <p class="pub-authors">A. Sanchez Ferrer, A.J. Gallego, J.J. Valero Mas, J. Calvo Zaragoza</p>
+            <a href="https://link.springer.com/chapter/10.1007/978-3-031-04881-4_49" target="_blank" rel="noopener" class="btn btn-small" data-i18n="publications.read_paper">Read Paper</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Awards & Hackathons -->
+      <div class="awards-row" data-reveal="up">
+        <div class="award-card glass-card">
+          <i class="fas fa-trophy"></i>
+          <h4 data-i18n="publications.award_title">Best Paper Award</h4>
+          <p>IbPRIA 2022</p>
+        </div>
+        <div class="award-card glass-card">
+          <i class="fas fa-code"></i>
+          <h4>OceanGuard AI</h4>
+          <p data-i18n="publications.hackathon_desc">Google Gemma3n Hackathon</p>
+        </div>
+      </div>
+
+      <!-- Podcast -->
+      <div class="podcast-section" data-reveal="up">
+        <h3 data-i18n="publications.podcast_title">PhD Research Podcast</h3>
+        <div class="podcast-toggle">
+          <button class="podcast-lang-btn active" data-podcast="en">English</button>
+          <button class="podcast-lang-btn" data-podcast="es">Spanish</button>
+        </div>
+        <div class="podcast-player" id="podcastPlayer">
+          <iframe id="podcastIframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2036352016&color=%23f63366&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CERTIFICATIONS ========== -->
+  <section id="certifications">
+    <div class="container">
+      <h2 class="section-title" data-i18n="certifications.title">Certifications</h2>
+      <div class="certs-grid" data-reveal="up">
+        <div class="cert-card glass-card">
+          <div class="cert-icon"><i class="fas fa-certificate"></i></div>
+          <div class="cert-info">
+            <h4>Build Next-Gen Agents with Vision Language Models</h4>
+            <p class="cert-issuer"><i class="fab fa-nvidia"></i> NVIDIA — 2025</p>
+          </div>
+        </div>
+        <div class="cert-card glass-card">
+          <div class="cert-icon"><i class="fas fa-certificate"></i></div>
+          <div class="cert-info">
+            <h4>Navigating NIM Agent Workflows for Multimodal Retrieval</h4>
+            <p class="cert-issuer"><i class="fab fa-nvidia"></i> NVIDIA — 2025</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT ========== -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title" data-i18n="contact.title">Get in Touch</h2>
+      <div class="contact-grid">
+        <div class="contact-info" data-reveal="left">
+          <h3 data-i18n="contact.heading">Let's work together</h3>
+          <p data-i18n="contact.subtitle">I'm always open to discussing new projects, research collaborations, or opportunities in AI and Computer Vision.</p>
+          <div class="contact-details">
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:alejandro_sanchez_ferrer@hotmail.com">alejandro_sanchez_ferrer@hotmail.com</a>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Alicante, Spain</span>
+            </div>
+          </div>
+          <div class="contact-socials">
+            <a href="https://www.linkedin.com/in/alejandro-sanchez-ferrer/" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/asferrer" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="https://www.youtube.com/@alejandrosanchezferrer9576/videos" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <form class="contact-form glass-card" id="contactForm" data-reveal="right">
+          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_KEY">
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none">
+          <div class="form-group">
+            <label for="name" data-i18n="contact.label_name">Full Name *</label>
+            <input type="text" id="name" name="name" required data-i18n-placeholder="contact.ph_name" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label for="email" data-i18n="contact.label_email">Email *</label>
+            <input type="email" id="email" name="email" required data-i18n-placeholder="contact.ph_email" placeholder="your@email.com">
+          </div>
+          <div class="form-group">
+            <label for="company" data-i18n="contact.label_company">Company (optional)</label>
+            <input type="text" id="company" name="company" data-i18n-placeholder="contact.ph_company" placeholder="Company name">
+          </div>
+          <div class="form-group">
+            <label for="message" data-i18n="contact.label_message">Message *</label>
+            <textarea id="message" name="message" rows="5" required data-i18n-placeholder="contact.ph_message" placeholder="Tell me about your project..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+            <span data-i18n="contact.send">Send Message</span>
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <div class="form-status" id="formStatus"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2025 Alejandro Sanchez Ferrer. <span data-i18n="footer.rights">All rights reserved.</span></p>
+        <div class="footer-socials">
+          <a href="https://www.linkedin.com/in/alejandro-sanchez-ferrer/" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="https://github.com/asferrer" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <a href="https://www.youtube.com/@alejandrosanchezferrer9576/videos" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top -->
+  <button id="backToTop" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
+
+  <!-- Scripts -->
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
