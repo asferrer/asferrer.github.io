@@ -78,13 +78,14 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
       {
         role: "user",
         content: [
-          { type: "image", image: rawImage },
+          { type: "image" },
           { type: "text", text: prompt }
         ]
       }
     ];
 
-    const inputs = await processor(messages);
+    const text = processor.apply_chat_template(messages, { add_generation_prompt: true });
+    const inputs = await processor(rawImage, { text });
 
     let fullText = "";
     const streamer = new TextStreamer(processor.tokenizer, {

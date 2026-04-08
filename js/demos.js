@@ -12,6 +12,21 @@ const CLASS_GROUPS = {
   food: ["banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza","donut","cake"]
 };
 
+/* Per-class bounding box colors */
+const CLASS_COLORS = {
+  person: "#f63366",
+  vehicle: "#007bff",
+  animal: "#4ade80",
+  furniture: "#fb923c",
+  food: "#facc15"
+};
+function getClassColor(className) {
+  for (const [group, classes] of Object.entries(CLASS_GROUPS)) {
+    if (classes.includes(className)) return CLASS_COLORS[group] || "#a855f7";
+  }
+  return "#a855f7";
+}
+
 /* Colormap LUTs (256 entries each) */
 function buildColormap(name) {
   const lut = new Uint8Array(256 * 3);
@@ -53,6 +68,7 @@ const DemoEngine = {
   _vlmWorker: null,
   _vlmReady: false,
   _vlmImageBase64: null,
+  _vlmWebcamActive: false,
 
   /* ---------- Script loader ---------- */
   loadScript(src) {
@@ -128,14 +144,12 @@ const DemoEngine = {
   getDetectionOpts() {
     const conf = (parseInt(document.getElementById("detConfidence")?.value || "50", 10)) / 100;
     const maxResults = parseInt(document.getElementById("detMaxResults")?.value || "20", 10);
-    const sel = document.getElementById("detClassFilter");
+    const pills = document.querySelectorAll("#detClassFilter .det-pill.active");
     let allowedClasses = null;
-    if (sel) {
-      const vals = Array.from(sel.selectedOptions).map(o => o.value);
-      if (!vals.includes("all")) {
-        allowedClasses = new Set();
-        vals.forEach(g => (CLASS_GROUPS[g] || [g]).forEach(c => allowedClasses.add(c)));
-      }
+    const groups = Array.from(pills).map(p => p.dataset.group);
+    if (!groups.includes("all")) {
+      allowedClasses = new Set();
+      groups.forEach(g => (CLASS_GROUPS[g] || []).forEach(c => allowedClasses.add(c)));
     }
     return { conf, maxResults, allowedClasses };
   },
@@ -182,10 +196,11 @@ const DemoEngine = {
 
         preds.forEach(p => {
           const [x, y, w, h] = p.bbox;
-          ctx.strokeStyle = "#f63366";
+          const color = getClassColor(p.class);
+          ctx.strokeStyle = color;
           ctx.lineWidth = 2;
           ctx.strokeRect(x, y, w, h);
-          ctx.fillStyle = "#f63366";
+          ctx.fillStyle = color;
           ctx.font = "bold 14px Inter, sans-serif";
           const label = `${p.class} ${Math.round(p.score * 100)}%`;
           const tw = ctx.measureText(label).width;
@@ -235,10 +250,11 @@ const DemoEngine = {
 
         preds.forEach(p => {
           const [x, y, w, h] = p.bbox;
-          ctx.strokeStyle = "#f63366";
+          const color = getClassColor(p.class);
+          ctx.strokeStyle = color;
           ctx.lineWidth = 3;
           ctx.strokeRect(x, y, w, h);
-          ctx.fillStyle = "#f63366";
+          ctx.fillStyle = color;
           ctx.font = "bold 16px Inter, sans-serif";
           const label = `${p.class} ${Math.round(p.score * 100)}%`;
           const tw = ctx.measureText(label).width;
@@ -365,9 +381,8 @@ const DemoEngine = {
      DEMO 3: Depth Estimation (Transformers.js)
      ==================================== */
   getDepthOpts() {
-    const colormap = document.getElementById("depthColormap")?.value || "inferno";
     const sideBySide = document.getElementById("depthSideBySide")?.checked !== false;
-    return { colormap, sideBySide };
+    return { sideBySide };
   },
 
   async initDepth(file) {
@@ -390,8 +405,8 @@ const DemoEngine = {
       this.setStatus(status, translations[currentLang]["demos.processing"] || "Processing depth map...", "loading");
       const img = new Image();
       img.onload = async () => {
-        const { colormap, sideBySide } = this.getDepthOpts();
-        const lut = buildColormap(colormap);
+        const { sideBySide } = this.getDepthOpts();
+        const lut = buildColormap("inferno");
 
         const result = await this.models.depth(img.src);
         const depthMap = result.depth;
@@ -440,6 +455,83 @@ const DemoEngine = {
       img.src = URL.createObjectURL(file);
     } catch (e) {
       this.setStatus(status, e.message || "Error loading demo", "error");
+    }
+  },
+
+  async initDepthWebcam() {
+    const status = "depthStatus";
+    const canvas = document.getElementById("depthCanvas");
+    const ctx = canvas.getContext("2d");
+    const video = document.getElementById("depthVideo");
+    const fpsEl = document.getElementById("depthFps");
+
+    this.hidePlaceholder("demo-depth");
+
+    try {
+      this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading Depth Anything model (~27MB)...", "loading");
+      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
+      env.allowLocalModels = false;
+      if (!this.models.depth) {
+        this.models.depth = await pipeline("depth-estimation", "Xenova/depth-anything-small-hf");
+      }
+
+      this.setStatus(status, translations[currentLang]["demos.starting_cam"] || "Starting camera...", "loading");
+      await this.startWebcam(video);
+
+      this.setStatus(status, translations[currentLang]["demos.running"] || "Running depth estimation on webcam", "success");
+      const fps = this.createFpsCounter();
+      const lut = buildColormap("inferno");
+      let processing = false;
+
+      const processFrame = async () => {
+        if (!this.stream) return;
+        if (!processing) {
+          processing = true;
+          try {
+            const off = document.createElement("canvas");
+            off.width = video.videoWidth;
+            off.height = video.videoHeight;
+            off.getContext("2d").drawImage(video, 0, 0);
+            const blob = await new Promise(r => off.toBlob(r, "image/jpeg", 0.7));
+            const url = URL.createObjectURL(blob);
+
+            const result = await this.models.depth(url);
+            URL.revokeObjectURL(url);
+            const depthMap = result.depth;
+
+            const { sideBySide } = this.getDepthOpts();
+            const vw = video.videoWidth, vh = video.videoHeight;
+            canvas.width = sideBySide ? vw * 2 : vw;
+            canvas.height = vh;
+            if (sideBySide) ctx.drawImage(video, 0, 0, vw, vh);
+
+            const dc = document.createElement("canvas");
+            dc.width = depthMap.width;
+            dc.height = depthMap.height;
+            const dctx = dc.getContext("2d");
+            const imgData = dctx.createImageData(depthMap.width, depthMap.height);
+            for (let i = 0; i < depthMap.data.length; i++) {
+              const v = Math.min(255, Math.max(0, Math.round(depthMap.data[i])));
+              imgData.data[i * 4]     = lut[v * 3];
+              imgData.data[i * 4 + 1] = lut[v * 3 + 1];
+              imgData.data[i * 4 + 2] = lut[v * 3 + 2];
+              imgData.data[i * 4 + 3] = 255;
+            }
+            dctx.putImageData(imgData, 0, 0);
+            ctx.drawImage(dc, sideBySide ? vw : 0, 0, vw, vh);
+
+            fps.tick();
+            const f = fps.get();
+            if (f !== null && fpsEl) fpsEl.textContent = `${f} FPS`;
+          } catch { /* skip frame on error */ }
+          processing = false;
+        }
+        this.animId = requestAnimationFrame(processFrame);
+      };
+      processFrame();
+    } catch (e) {
+      this.setStatus(status, e.message || "Error", "error");
+      this.resetButton("startDepth");
     }
   },
 
@@ -536,6 +628,10 @@ const DemoEngine = {
           const span = btn.querySelector("[data-i18n]");
           if (span) span.textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
         }
+        // Continue webcam caption loop
+        if (this._vlmWebcamActive) {
+          setTimeout(() => this._captionLoop(), 300);
+        }
       } else if (msg.type === "generate:error") {
         this.setStatus(status, msg.data.message, "error");
         const btn = document.getElementById("vlmGenerate");
@@ -600,17 +696,74 @@ const DemoEngine = {
       preview.style.display = "";
     }
     this.hidePlaceholder("demo-vlm");
-    // Enable generate if model is ready
     const btn = document.getElementById("vlmGenerate");
     if (btn && this._vlmReady) btn.disabled = false;
+  },
+
+  async startVlmWebcam() {
+    const video = document.getElementById("vlmVideo");
+    const preview = document.getElementById("vlmPreview");
+    if (preview) preview.style.display = "none";
+
+    this.hidePlaceholder("demo-vlm");
+    video.style.display = "";
+    video.style.position = "relative";
+    video.style.opacity = "1";
+    video.style.maxHeight = "240px";
+    video.style.width = "100%";
+    video.style.objectFit = "contain";
+
+    await this.startWebcam(video);
+    await this.initVlm();
+
+    this._vlmWebcamActive = true;
+    this._captionLoop();
+  },
+
+  _captionLoop() {
+    if (!this._vlmWebcamActive || !this.stream) return;
+    const video = document.getElementById("vlmVideo");
+    if (!video || !video.videoWidth) return;
+
+    const c = document.createElement("canvas");
+    c.width = video.videoWidth;
+    c.height = video.videoHeight;
+    c.getContext("2d").drawImage(video, 0, 0);
+    this._vlmImageBase64 = c.toDataURL("image/jpeg", 0.7);
+
+    if (this._vlmReady) {
+      this._vlmCaptionPending = true;
+      this.generateVlm();
+    } else {
+      setTimeout(() => this._captionLoop(), 1000);
+    }
+  },
+
+  stopVlmWebcam() {
+    this._vlmWebcamActive = false;
+    this._vlmCaptionPending = false;
+    const video = document.getElementById("vlmVideo");
+    this.stopWebcam(video);
+    if (video) {
+      video.style.display = "none";
+      video.style.position = "";
+      video.style.opacity = "";
+    }
+    this.stopVlm();
   },
 
   /* ---------- Cleanup ---------- */
   stopAll() {
     const detVideo = document.getElementById("detectionVideo");
     const poseVideo = document.getElementById("poseVideo");
+    const depthVideo = document.getElementById("depthVideo");
     const vlmVideo = document.getElementById("vlmVideo");
-    this.stopWebcam(detVideo || poseVideo || vlmVideo);
+    this.stopWebcam(detVideo);
+    this.stopWebcam(poseVideo);
+    this.stopWebcam(depthVideo);
+    this._vlmWebcamActive = false;
+    this.stopWebcam(vlmVideo);
+    if (vlmVideo) { vlmVideo.style.display = "none"; vlmVideo.style.opacity = ""; vlmVideo.style.position = ""; }
     if (this._vlmWorker) {
       this._vlmWorker.terminate();
       this._vlmWorker = null;
@@ -635,6 +788,13 @@ const DemoEngine = {
     this._vlmImageBase64 = null;
     const vlmBtn = document.getElementById("vlmGenerate");
     if (vlmBtn) vlmBtn.disabled = true;
+    // Reset VLM webcam button
+    const vlmWcBtn = document.getElementById("vlmWebcamBtn");
+    if (vlmWcBtn) {
+      vlmWcBtn.classList.remove("running");
+      const span = vlmWcBtn.querySelector("[data-i18n]");
+      if (span) span.textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+    }
   }
 };
 
@@ -684,6 +844,22 @@ function initDemos() {
     });
   }
 
+  // Detection — pill toggle logic
+  document.querySelectorAll("#detClassFilter .det-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      if (pill.dataset.group === "all") {
+        document.querySelectorAll("#detClassFilter .det-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+      } else {
+        document.querySelector('#detClassFilter .det-pill[data-group="all"]')?.classList.remove("active");
+        pill.classList.toggle("active");
+        if (!document.querySelector("#detClassFilter .det-pill.active")) {
+          document.querySelector('#detClassFilter .det-pill[data-group="all"]')?.classList.add("active");
+        }
+      }
+    });
+  });
+
   // Pose Estimation — webcam
   const poseBtn = document.getElementById("startPose");
   if (poseBtn) {
@@ -701,11 +877,34 @@ function initDemos() {
     });
   }
 
-  // Depth Estimation — image upload only
+  // Depth Estimation — webcam
+  const depthBtn = document.getElementById("startDepth");
+  if (depthBtn) {
+    depthBtn.addEventListener("click", function () {
+      if (this.classList.contains("running")) {
+        DemoEngine.stopWebcam(document.getElementById("depthVideo"));
+        this.classList.remove("running");
+        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+        DemoEngine.setStatus("depthStatus", "", "");
+        document.getElementById("depthFps").textContent = "";
+      } else {
+        this.classList.add("running");
+        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.stop"] || "Stop";
+        DemoEngine.initDepthWebcam();
+      }
+    });
+  }
+
+  // Depth Estimation — image upload
   const depthUpload = document.getElementById("depthUpload");
   if (depthUpload) {
     depthUpload.addEventListener("change", e => {
-      if (e.target.files[0]) DemoEngine.initDepth(e.target.files[0]);
+      if (e.target.files[0]) {
+        DemoEngine.stopWebcam(document.getElementById("depthVideo"));
+        const btn = document.getElementById("startDepth");
+        if (btn) { btn.classList.remove("running"); btn.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam"; }
+        DemoEngine.initDepth(e.target.files[0]);
+      }
     });
   }
 
@@ -724,27 +923,24 @@ function initDemos() {
     });
   }
 
-  // VLM — webcam snapshot
-  const vlmSnap = document.getElementById("vlmSnapshot");
-  if (vlmSnap) {
-    vlmSnap.addEventListener("click", async () => {
-      const video = document.getElementById("vlmVideo");
-      try {
-        video.style.display = "";
-        await DemoEngine.startWebcam(video);
-        // Wait a moment for camera to stabilize
-        await new Promise(r => setTimeout(r, 500));
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0);
-        DemoEngine.stopWebcam(video);
-        video.style.display = "none";
-        DemoEngine.setVlmImage(canvas.toDataURL("image/jpeg", 0.85));
-        DemoEngine.initVlm();
-      } catch (err) {
-        DemoEngine.setStatus("vlmStatus", err.message || "Camera error", "error");
-        video.style.display = "none";
+  // VLM — webcam live caption toggle
+  const vlmWebcamBtn = document.getElementById("vlmWebcamBtn");
+  if (vlmWebcamBtn) {
+    vlmWebcamBtn.addEventListener("click", async function () {
+      if (DemoEngine._vlmWebcamActive) {
+        DemoEngine.stopVlmWebcam();
+        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+        this.classList.remove("running");
+      } else {
+        this.classList.add("running");
+        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_stop_webcam"] || "Stop Live Caption";
+        try {
+          await DemoEngine.startVlmWebcam();
+        } catch (err) {
+          DemoEngine.setStatus("vlmStatus", err.message || "Camera error", "error");
+          this.classList.remove("running");
+          this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+        }
       }
     });
   }

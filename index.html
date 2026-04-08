@@ -578,14 +578,14 @@
           <div class="demo-options">
             <label class="demo-option">
               <span data-i18n="demos.filter_classes">Filter classes</span>
-              <select id="detClassFilter" multiple size="4">
-                <option value="all" selected data-i18n="demos.all_classes">All (80 classes)</option>
-                <option value="person">Person</option>
-                <option value="vehicle" data-i18n="demos.vehicles">Vehicles</option>
-                <option value="animal" data-i18n="demos.animals">Animals</option>
-                <option value="furniture" data-i18n="demos.furniture">Furniture</option>
-                <option value="food" data-i18n="demos.food">Food</option>
-              </select>
+              <div class="det-filter-pills" id="detClassFilter">
+                <button class="det-pill active" data-group="all" data-i18n="demos.all_classes">All</button>
+                <button class="det-pill" data-group="person">Person</button>
+                <button class="det-pill" data-group="vehicle" data-i18n="demos.vehicles">Vehicles</button>
+                <button class="det-pill" data-group="animal" data-i18n="demos.animals">Animals</button>
+                <button class="det-pill" data-group="furniture" data-i18n="demos.furniture">Furniture</button>
+                <button class="det-pill" data-group="food" data-i18n="demos.food">Food</button>
+              </div>
             </label>
             <label class="demo-option">
               <span data-i18n="demos.confidence">Min confidence</span>
@@ -662,33 +662,29 @@
         <div class="demo-sidebar">
           <h3 data-i18n="demos.depth_title">Monocular Depth Estimation</h3>
           <p class="demo-model-info">Transformers.js — Depth Anything Small</p>
-          <p class="demo-model-meta" data-i18n="demos.depth_meta">~27MB model (first load only) | Image upload</p>
+          <p class="demo-model-meta" data-i18n="demos.depth_meta">~27MB model (first load only) | Webcam &amp; image upload</p>
           <div class="demo-controls">
+            <button class="btn btn-primary demo-start-btn" id="startDepth">
+              <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
+            </button>
             <label class="demo-upload-label">
               <input type="file" accept="image/*" id="depthUpload" hidden>
-              <span class="btn btn-primary"><i class="fas fa-image"></i> <span data-i18n="demos.upload_image">Upload Image</span></span>
+              <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.upload_image">Upload Image</span></span>
             </label>
           </div>
           <div class="demo-options">
-            <label class="demo-option">
-              <span data-i18n="demos.colormap">Color map</span>
-              <select id="depthColormap">
-                <option value="grayscale" data-i18n="demos.grayscale">Grayscale</option>
-                <option value="inferno" selected>Inferno</option>
-                <option value="viridis">Viridis</option>
-                <option value="turbo">Turbo</option>
-              </select>
-            </label>
             <label class="demo-option demo-checkbox">
               <input type="checkbox" id="depthSideBySide" checked>
               <span data-i18n="demos.side_by_side">Side by side comparison</span>
             </label>
           </div>
           <div class="demo-status" id="depthStatus"></div>
+          <div class="demo-fps" id="depthFps"></div>
         </div>
         <div class="demo-viewport">
+          <video id="depthVideo" autoplay playsinline muted></video>
           <canvas id="depthCanvas"></canvas>
-          <div class="demo-placeholder" data-i18n="demos.placeholder_depth">Upload an image to generate a depth map</div>
+          <div class="demo-placeholder" data-i18n="demos.placeholder_depth">Start webcam or upload an image for depth estimation</div>
         </div>
       </div>
 
@@ -703,8 +699,8 @@
               <input type="file" accept="image/*" id="vlmUpload" hidden>
               <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.vlm_upload">Upload Image</span></span>
             </label>
-            <button class="btn btn-outline" id="vlmSnapshot">
-              <i class="fas fa-camera"></i> <span data-i18n="demos.vlm_snapshot">Webcam Snapshot</span>
+            <button class="btn btn-outline" id="vlmWebcamBtn">
+              <i class="fas fa-video"></i> <span data-i18n="demos.vlm_start_webcam">Start Live Caption</span>
             </button>
             <select class="vlm-presets" id="vlmPreset">
               <option value="describe" data-i18n="demos.vlm_preset_describe">Describe this image in detail</option>
