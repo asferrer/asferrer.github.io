@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initPodcastToggle();
   initBackToTop();
   initImageFallbacks();
+  if (typeof initDemos === "function") initDemos();
 });
 
 /* ==============================
