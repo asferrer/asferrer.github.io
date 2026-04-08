@@ -565,9 +565,14 @@
         <div class="demo-sidebar">
           <h3 data-i18n="demos.det_title">Real-Time Object Detection</h3>
           <div class="demo-controls">
-            <button class="btn btn-primary demo-start-btn" id="startDetection">
-              <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
-            </button>
+            <div class="demo-webcam-row">
+              <button class="btn btn-primary demo-start-btn" id="startDetection">
+                <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
+              </button>
+              <button class="btn btn-outline camera-flip-btn" title="Switch camera" aria-label="Switch camera">
+                <i class="fas fa-camera-rotate"></i>
+              </button>
+            </div>
             <label class="demo-upload-label">
               <input type="file" accept="image/*" id="detectionUpload" hidden>
               <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.upload">Upload Image</span></span>
@@ -618,9 +623,14 @@
         <div class="demo-sidebar">
           <h3 data-i18n="demos.pose_title">Real-Time Pose Estimation</h3>
           <div class="demo-controls">
-            <button class="btn btn-primary demo-start-btn" id="startPose">
-              <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
-            </button>
+            <div class="demo-webcam-row">
+              <button class="btn btn-primary demo-start-btn" id="startPose">
+                <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
+              </button>
+              <button class="btn btn-outline camera-flip-btn" title="Switch camera" aria-label="Switch camera">
+                <i class="fas fa-camera-rotate"></i>
+              </button>
+            </div>
           </div>
           <details class="demo-options-collapsible">
             <summary data-i18n="demos.more_options">More options</summary>
@@ -664,9 +674,14 @@
         <div class="demo-sidebar">
           <h3 data-i18n="demos.depth_title">Monocular Depth Estimation</h3>
           <div class="demo-controls">
-            <button class="btn btn-primary demo-start-btn" id="startDepth">
-              <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
-            </button>
+            <div class="demo-webcam-row">
+              <button class="btn btn-primary demo-start-btn" id="startDepth">
+                <i class="fas fa-video"></i> <span data-i18n="demos.start">Start Webcam</span>
+              </button>
+              <button class="btn btn-outline camera-flip-btn" title="Switch camera" aria-label="Switch camera">
+                <i class="fas fa-camera-rotate"></i>
+              </button>
+            </div>
             <label class="demo-upload-label">
               <input type="file" accept="image/*" id="depthUpload" hidden>
               <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.upload_image">Upload Image</span></span>
@@ -700,9 +715,14 @@
               <input type="file" accept="image/*" id="vlmUpload" hidden>
               <span class="btn btn-outline"><i class="fas fa-image"></i> <span data-i18n="demos.vlm_upload">Upload Image</span></span>
             </label>
-            <button class="btn btn-outline" id="vlmWebcamBtn">
-              <i class="fas fa-video"></i> <span data-i18n="demos.vlm_start_webcam">Start Live Caption</span>
-            </button>
+            <div class="demo-webcam-row">
+              <button class="btn btn-outline" id="vlmWebcamBtn">
+                <i class="fas fa-video"></i> <span data-i18n="demos.vlm_start_webcam">Start Live Caption</span>
+              </button>
+              <button class="btn btn-outline camera-flip-btn" title="Switch camera" aria-label="Switch camera">
+                <i class="fas fa-camera-rotate"></i>
+              </button>
+            </div>
             <select class="vlm-presets" id="vlmPreset">
               <option value="describe" data-i18n="demos.vlm_preset_describe">Briefly describe what you see in 1-2 sentences</option>
               <option value="objects" data-i18n="demos.vlm_preset_objects">What objects do you see?</option>

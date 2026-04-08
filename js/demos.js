@@ -84,13 +84,40 @@ const DemoEngine = {
   },
 
   /* ---------- Webcam helpers ---------- */
+  _facingMode: "user",
+
   async startWebcam(video) {
     if (this.stream) this.stopWebcam(video);
     this.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+      video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
     });
     video.srcObject = this.stream;
     return new Promise(r => { video.onloadedmetadata = () => { video.play(); r(); }; });
+  },
+
+  async flipCamera() {
+    this._facingMode = this._facingMode === "user" ? "environment" : "user";
+    this._updateCameraIcons();
+    // Find active video element and restart stream
+    const activeVideo = document.querySelector(".demo-content:not(.hidden) video");
+    if (activeVideo && this.stream) {
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+      });
+      activeVideo.srcObject = this.stream;
+      await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
+      // Resize canvas if present
+      const canvas = activeVideo.parentElement?.querySelector("canvas");
+      if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
+    }
+  },
+
+  _updateCameraIcons() {
+    const icon = this._facingMode === "environment" ? "fa-camera" : "fa-camera-rotate";
+    document.querySelectorAll(".camera-flip-btn i").forEach(i => {
+      i.className = "fas " + icon;
+    });
   },
 
   stopWebcam(video) {
@@ -561,24 +588,9 @@ const DemoEngine = {
     const progressFill = document.getElementById("vlmProgressFill");
     const progressText = document.getElementById("vlmProgressText");
 
-    // WebGPU check
-    if (!navigator.gpu) {
-      this.setStatus(status, translations[currentLang]["demos.vlm_no_webgpu"] || "WebGPU not supported. Try Chrome 113+.", "error");
-      return;
-    }
-    try {
-      const adapter = await navigator.gpu.requestAdapter();
-      if (!adapter) {
-        this.setStatus(status, translations[currentLang]["demos.vlm_no_gpu"] || "No compatible GPU found.", "error");
-        return;
-      }
-    } catch {
-      this.setStatus(status, translations[currentLang]["demos.vlm_no_gpu"] || "No compatible GPU found.", "error");
-      return;
-    }
-
     if (this._vlmReady) {
-      this.setStatus(status, translations[currentLang]["demos.vlm_ready"] || "Model ready", "success");
+      const readyKey = this._vlmDevice === "wasm" ? "demos.vlm_ready_wasm" : "demos.vlm_ready";
+      this.setStatus(status, translations[currentLang][readyKey] || "Model ready", "success");
       return;
     }
 
@@ -591,14 +603,20 @@ const DemoEngine = {
     this._vlmWorker = new Worker("js/vlm-worker.js", { type: "module" });
 
     this._vlmWorker.onmessage = ({ data: msg }) => {
-      if (msg.type === "load:progress") {
+      if (msg.type === "load:device") {
+        this._vlmDevice = msg.data.device;
+        const key = msg.data.device === "wasm" ? "demos.vlm_loading_wasm" : "demos.vlm_loading";
+        this.setStatus(status, translations[currentLang][key] || "Downloading model...", "loading");
+      } else if (msg.type === "load:progress") {
         const p = msg.data.progress;
         if (progressFill) progressFill.style.width = `${p}%`;
         if (progressText) progressText.textContent = `${p}%`;
       } else if (msg.type === "load:ready") {
         this._vlmReady = true;
+        this._vlmDevice = msg.data?.device || this._vlmDevice || "webgpu";
         if (progress) progress.style.display = "none";
-        this.setStatus(status, translations[currentLang]["demos.vlm_ready"] || "Model ready", "success");
+        const readyKey = this._vlmDevice === "wasm" ? "demos.vlm_ready_wasm" : "demos.vlm_ready";
+        this.setStatus(status, translations[currentLang][readyKey] || "Model ready", "success");
         const btn = document.getElementById("vlmGenerate");
         if (btn && this._vlmImageBase64) btn.disabled = false;
       } else if (msg.type === "load:error") {
@@ -996,6 +1014,11 @@ function initDemos() {
       }
     });
   }
+
+  // Camera flip buttons
+  document.querySelectorAll(".camera-flip-btn").forEach(btn => {
+    btn.addEventListener("click", () => DemoEngine.flipCamera());
+  });
 
   // Range slider live value display
   const rangeBindings = [

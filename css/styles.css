@@ -944,6 +944,24 @@ section {
   z-index: 2;
 }
 
+/* Webcam row: start button + camera flip */
+.demo-webcam-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.demo-webcam-row .btn:first-child { flex: 1; }
+.camera-flip-btn {
+  min-width: 44px;
+  max-width: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
 /* VLM Demo */
 .vlm-viewport {
   position: relative;
@@ -1512,7 +1530,38 @@ footer {
   .projects-grid { grid-template-columns: 1fr; }
 
   .demo-content { grid-template-columns: 1fr; }
-  .demo-viewport { min-height: 260px; }
+  .demo-viewport { min-height: 220px; }
+  .demo-sidebar {
+    padding: 12px;
+    gap: 8px;
+  }
+  .demo-sidebar .demo-btn,
+  .demo-sidebar .demo-start-btn,
+  .demo-sidebar button {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+  .demo-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .demo-tab {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .demo-tab i { margin-right: 4px; font-size: 0.8rem; }
+  .vlm-viewport { min-height: 260px; }
+  .vlm-prompt { min-height: 44px; font-size: 0.85rem; }
+  .demo-options-collapsible summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .det-filter-pills { gap: 6px; }
+  .det-pill { padding: 5px 10px; font-size: 0.75rem; min-height: 36px; }
 
   .publications-grid { grid-template-columns: 1fr; }
 
@@ -1532,4 +1581,12 @@ footer {
   .filter-bar { flex-wrap: wrap; }
   .education-grid { grid-template-columns: 1fr; }
   .skills-grid { grid-template-columns: 1fr; }
+  .demo-tab { padding: 7px 8px; font-size: 0.7rem; }
+  .demo-tab span { display: none; }
+  .demo-tab i { margin-right: 0; font-size: 1rem; }
+  .demo-viewport { min-height: 200px; }
+  .demo-viewport canvas { max-height: clamp(200px, 55vw, 360px); }
+  .vlm-viewport { min-height: 220px; }
+  .vlm-viewport video { max-height: clamp(200px, 55vw, 360px); }
+  .vlm-image-preview { max-height: clamp(200px, 55vw, 360px); }
 }

@@ -15,6 +15,7 @@ const MODEL_ID = "HuggingFaceTB/SmolVLM-256M-Instruct";
 let processor = null;
 let model = null;
 let aborted = false;
+let deviceUsed = "webgpu";
 
 self.onmessage = async ({ data: msg }) => {
   if (msg.type === "load") {
@@ -26,23 +27,27 @@ self.onmessage = async ({ data: msg }) => {
   }
 };
 
+async function detectDevice() {
+  if (navigator.gpu) {
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (adapter) return "webgpu";
+    } catch { /* fall through */ }
+  }
+  return "wasm";
+}
+
 async function handleLoad() {
   try {
-    if (!navigator.gpu) {
-      self.postMessage({ type: "load:error", data: { message: "WebGPU not available" } });
-      return;
-    }
-
-    const adapter = await navigator.gpu.requestAdapter();
-    if (!adapter) {
-      self.postMessage({ type: "load:error", data: { message: "No compatible GPU found" } });
-      return;
-    }
-
     if (processor && model) {
-      self.postMessage({ type: "load:ready" });
+      self.postMessage({ type: "load:ready", data: { device: deviceUsed } });
       return;
     }
+
+    deviceUsed = await detectDevice();
+    const dtype = deviceUsed === "webgpu" ? "fp32" : "q4";
+
+    self.postMessage({ type: "load:device", data: { device: deviceUsed } });
 
     processor = await AutoProcessor.from_pretrained(MODEL_ID, {
       progress_callback: (p) => {
@@ -53,8 +58,8 @@ async function handleLoad() {
     });
 
     model = await AutoModelForVision2Seq.from_pretrained(MODEL_ID, {
-      dtype: "fp32",
-      device: "webgpu",
+      dtype,
+      device: deviceUsed,
       progress_callback: (p) => {
         if (p.progress != null) {
           self.postMessage({ type: "load:progress", data: { progress: Math.round(p.progress) } });
@@ -62,7 +67,7 @@ async function handleLoad() {
       }
     });
 
-    self.postMessage({ type: "load:ready" });
+    self.postMessage({ type: "load:ready", data: { device: deviceUsed } });
   } catch (e) {
     self.postMessage({ type: "load:error", data: { message: e.message || "Failed to load model" } });
   }
