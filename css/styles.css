@@ -1272,10 +1272,8 @@ section {
 }
 .cert-logo {
   width: 100%;
-  height: auto;
-}
-.ibm-logo {
-  width: 42px;
+  height: 100%;
+  object-fit: contain;
 }
 .cert-info h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
 .cert-issuer { font-size: 0.85rem; color: var(--text-secondary); }
