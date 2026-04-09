@@ -680,6 +680,10 @@ const DemoEngine = {
 
     this._vlmLog("Worker created, sending load...");
     this._vlmWorker.onmessage = ({ data: msg }) => {
+      if (msg.type === "log") {
+        this._vlmLog(`[W] ${msg.data}`);
+        return;
+      }
       if (msg.type === "load:device") {
         this._vlmDevice = msg.data.device;
         this._vlmLog(`Device: ${msg.data.device}`);
@@ -886,10 +890,12 @@ const DemoEngine = {
     }
 
     const c = document.createElement("canvas");
-    c.width = video.videoWidth;
-    c.height = video.videoHeight;
-    c.getContext("2d").drawImage(video, 0, 0);
-    this._vlmImageBase64 = c.toDataURL("image/jpeg", 0.7);
+    // Reduce resolution on WASM to save memory and speed up inference
+    const scale = this._vlmDevice === "wasm" ? 0.5 : 1;
+    c.width = Math.round(video.videoWidth * scale);
+    c.height = Math.round(video.videoHeight * scale);
+    c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
+    this._vlmImageBase64 = c.toDataURL("image/jpeg", this._vlmDevice === "wasm" ? 0.5 : 0.7);
 
     if (this._vlmReady) {
       this._vlmCaptionPending = true;

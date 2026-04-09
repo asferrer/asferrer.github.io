@@ -8,6 +8,7 @@ import {
   AutoModelForVision2Seq,
   TextStreamer,
   load_image,
+  env,
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 const MODEL_ID = "HuggingFaceTB/SmolVLM-256M-Instruct";
@@ -17,11 +18,17 @@ let model = null;
 let aborted = false;
 let deviceUsed = "webgpu";
 
+function log(msg) {
+  self.postMessage({ type: "log", data: msg });
+}
+
 // Global error handler - prevents silent worker crash
 self.onerror = (e) => {
+  log(`onerror: ${e.message || e}`);
   self.postMessage({ type: "load:error", data: { message: e.message || "Worker error" } });
 };
 self.onunhandledrejection = (e) => {
+  log(`unhandledrejection: ${e.reason?.message || e.reason || "unknown"}`);
   self.postMessage({ type: "load:error", data: { message: e.reason?.message || "Unhandled error in worker" } });
 };
 
@@ -53,17 +60,26 @@ async function handleLoad() {
     }
 
     deviceUsed = await detectDevice();
+    log(`Device detected: ${deviceUsed}`);
 
-    // WASM: vision_encoder needs fp32 (ConvInteger not supported in WASM),
-    // decoder uses int8 (q4 MatMulNBits produces bad logits on WASM SIMD128).
+    // Force single-threaded WASM: prevents iOS JSC crash (Issue #1242),
+    // avoids SharedArrayBuffer requirement (GitHub Pages has no COOP/COEP).
+    if (deviceUsed === "wasm") {
+      env.backends.onnx.wasm.numThreads = 1;
+      log("WASM numThreads set to 1");
+    }
+
+    // WASM dtype: fp16 for vision_encoder (avoids ConvInteger issue of int8,
+    // halves download from 374→187MB). int8 for decoder (proven stable).
     const dtype = deviceUsed === "webgpu"
       ? "fp32"
       : {
-          embed_tokens: "fp32",
-          vision_encoder: "fp32",
+          embed_tokens: "fp16",
+          vision_encoder: "fp16",
           decoder_model_merged: "int8"
         };
 
+    log(`dtype: ${JSON.stringify(dtype)}`);
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });
 
     const progressCb = (p) => {
@@ -72,18 +88,23 @@ async function handleLoad() {
       }
     };
 
+    log("Loading processor...");
     processor = await AutoProcessor.from_pretrained(MODEL_ID, {
       progress_callback: progressCb
     });
+    log("Processor loaded");
 
+    log("Loading model...");
     model = await AutoModelForVision2Seq.from_pretrained(MODEL_ID, {
       dtype,
       device: deviceUsed,
       progress_callback: progressCb
     });
+    log("Model loaded");
 
     self.postMessage({ type: "load:ready", data: { device: deviceUsed } });
   } catch (e) {
+    log(`Load error: ${e.message}`);
     self.postMessage({ type: "load:error", data: { message: e.message || "Failed to load model" } });
   }
 }
@@ -92,6 +113,7 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
   aborted = false;
 
   try {
+    log("Loading image...");
     const img = await load_image(image);
 
     const messages = [
@@ -104,8 +126,10 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
       }
     ];
 
+    log("Applying chat template...");
     const text = processor.apply_chat_template(messages, { add_generation_prompt: true });
     const inputs = await processor(text, [img]);
+    log("Inputs ready, generating...");
 
     let fullText = "";
     const streamer = new TextStreamer(processor.tokenizer, {
@@ -134,9 +158,11 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
     await model.generate(genOpts);
 
     if (!aborted) {
+      log(`Generation done: ${fullText.length} chars`);
       self.postMessage({ type: "generate:done", data: { fullText } });
     }
   } catch (e) {
+    log(`Generate error: ${e.message}`);
     if (!aborted) {
       self.postMessage({ type: "generate:error", data: { message: e.message || "Generation failed" } });
     }
