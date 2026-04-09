@@ -637,6 +637,15 @@ const DemoEngine = {
     if (except !== "pose") this._visionModule = null;
   },
 
+  _vlmLog(msg) {
+    const el = document.getElementById("vlmDebugLog");
+    if (el) {
+      const ts = new Date().toLocaleTimeString();
+      el.textContent += `[${ts}] ${msg}\n`;
+      el.scrollTop = el.scrollHeight;
+    }
+  },
+
   async initVlm() {
     const status = "vlmStatus";
     const progress = document.getElementById("vlmProgress");
@@ -664,13 +673,16 @@ const DemoEngine = {
     }
 
     this._vlmWorker.onerror = (e) => {
+      this._vlmLog(`WORKER ERROR: ${e.message || e}`);
       if (progress) progress.style.display = "none";
       this.setStatus(status, e.message || "VLM worker error", "error");
     };
 
+    this._vlmLog("Worker created, sending load...");
     this._vlmWorker.onmessage = ({ data: msg }) => {
       if (msg.type === "load:device") {
         this._vlmDevice = msg.data.device;
+        this._vlmLog(`Device: ${msg.data.device}`);
         const key = msg.data.device === "wasm" ? "demos.vlm_loading_wasm" : "demos.vlm_loading";
         this.setStatus(status, translations[currentLang][key] || "Downloading model...", "loading");
       } else if (msg.type === "load:progress") {
@@ -680,17 +692,20 @@ const DemoEngine = {
       } else if (msg.type === "load:ready") {
         this._vlmReady = true;
         this._vlmDevice = msg.data?.device || this._vlmDevice || "webgpu";
+        this._vlmLog(`Model ready (device=${this._vlmDevice})`);
         if (progress) progress.style.display = "none";
         const readyKey = this._vlmDevice === "wasm" ? "demos.vlm_ready_wasm" : "demos.vlm_ready";
         this.setStatus(status, translations[currentLang][readyKey] || "Model ready", "success");
         const btn = document.getElementById("vlmGenerate");
         if (btn && this._vlmImageBase64) btn.disabled = false;
       } else if (msg.type === "load:error") {
+        this._vlmLog(`LOAD ERROR: ${msg.data.message}`);
         if (progress) progress.style.display = "none";
         this.setStatus(status, msg.data.message, "error");
       } else if (msg.type === "generate:token") {
         this._vlmPendingText += msg.data.token;
         this._vlmTokenCount = (this._vlmTokenCount || 0) + 1;
+        if (this._vlmTokenCount <= 3) this._vlmLog(`Token ${this._vlmTokenCount}: "${msg.data.token}"`);
         if (!this._vlmWebcamActive) {
           const output = document.getElementById("vlmOutput");
           if (output) {
@@ -704,6 +719,7 @@ const DemoEngine = {
           this.setStatus(status, `Generating... (${this._vlmTokenCount} tokens)`, "loading");
         }
       } else if (msg.type === "generate:done") {
+        this._vlmLog(`Done: ${this._vlmTokenCount} tokens, text="${this._vlmPendingText.slice(0, 80)}"`);
         const output = document.getElementById("vlmOutput");
         if (this._vlmWebcamActive) {
           // Typewriter reveal in webcam mode
@@ -730,6 +746,7 @@ const DemoEngine = {
           }
         }
       } else if (msg.type === "generate:error") {
+        this._vlmLog(`GEN ERROR: ${msg.data.message}`);
         if (this._vlmWebcamActive) {
           // Retry caption loop on generation error
           this._vlmPendingText = "";
@@ -757,8 +774,13 @@ const DemoEngine = {
       prompt = "Describe what you see in this image in one short sentence.";
     }
     if (!this._vlmImageBase64 || !prompt) {
+      this._vlmLog(`generateVlm skip: img=${!!this._vlmImageBase64} prompt=${!!prompt}`);
       // Keep caption loop alive in webcam mode
       if (this._vlmWebcamActive) setTimeout(() => this._captionLoop(), 1000);
+      return;
+    }
+    if (!this._vlmWorker) {
+      this._vlmLog("generateVlm: worker is null!");
       return;
     }
 
@@ -799,6 +821,7 @@ const DemoEngine = {
     const effectiveMaxTokens = this._vlmWebcamActive
       ? Math.min(maxTokens, isWasm ? 30 : 60)
       : (isWasm ? Math.min(maxTokens, 100) : maxTokens);
+    this._vlmLog(`Generate: device=${this._vlmDevice} maxTok=${effectiveMaxTokens} temp=${temperature} webcam=${this._vlmWebcamActive}`);
     this._vlmWorker.postMessage({
       type: "generate",
       data: {

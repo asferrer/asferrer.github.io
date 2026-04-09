@@ -758,6 +758,11 @@
             <span class="vlm-progress-text" id="vlmProgressText">0%</span>
           </div>
           <div class="demo-status" id="vlmStatus"></div>
+          <details class="vlm-debug-panel" style="margin-top:8px;font-size:11px;">
+            <summary style="cursor:pointer;color:#888;">Debug Log</summary>
+            <pre id="vlmDebugLog" style="max-height:200px;overflow:auto;background:#111;color:#0f0;padding:6px;border-radius:4px;white-space:pre-wrap;word-break:break-all;font-size:10px;"></pre>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('vlmDebugLog').textContent)" style="margin-top:4px;font-size:10px;padding:2px 8px;">Copy logs</button>
+          </details>
         </div>
         <div class="demo-viewport vlm-viewport">
           <video id="vlmVideo" autoplay playsinline muted style="display:none;"></video>
