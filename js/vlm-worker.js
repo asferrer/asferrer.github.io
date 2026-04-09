@@ -69,17 +69,6 @@ async function handleLoad() {
       log("WASM numThreads set to 1");
     }
 
-    // WASM dtype: fp16 for vision_encoder (avoids ConvInteger issue of int8,
-    // halves download from 374→187MB). int8 for decoder (proven stable).
-    const dtype = deviceUsed === "webgpu"
-      ? "fp32"
-      : {
-          embed_tokens: "fp16",
-          vision_encoder: "fp16",
-          decoder_model_merged: "int8"
-        };
-
-    log(`dtype: ${JSON.stringify(dtype)}`);
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });
 
     const progressCb = (p) => {
@@ -93,6 +82,20 @@ async function handleLoad() {
       progress_callback: progressCb
     });
     log("Processor loaded");
+
+    // WASM: try fp16 first (smaller download), fall back to fp32 if it fails.
+    // int8 for decoder is proven stable. ConvInteger bug only affects int8/q4 vision_encoder.
+    let dtype;
+    if (deviceUsed === "webgpu") {
+      dtype = "fp32";
+    } else {
+      dtype = {
+        embed_tokens: "fp16",
+        vision_encoder: "fp32",
+        decoder_model_merged: "int8"
+      };
+    }
+    log(`dtype: ${JSON.stringify(dtype)}`);
 
     log("Loading model...");
     model = await AutoModelForVision2Seq.from_pretrained(MODEL_ID, {
@@ -145,18 +148,34 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
     const genOpts = {
       ...inputs,
       max_new_tokens: maxTokens || 200,
-      repetition_penalty: 1.2,
       streamer,
     };
-    if (temperature && temperature > 0) {
-      genOpts.do_sample = true;
-      genOpts.temperature = temperature;
-    } else {
+    // On WASM: force greedy decoding (faster, no sampling overhead)
+    if (deviceUsed === "wasm") {
       genOpts.do_sample = false;
+    } else {
+      genOpts.repetition_penalty = 1.2;
+      if (temperature && temperature > 0) {
+        genOpts.do_sample = true;
+        genOpts.temperature = temperature;
+      } else {
+        genOpts.do_sample = false;
+      }
+    }
+
+    // Timeout for WASM: detect if inference hangs vs just being slow
+    let genTimeout = null;
+    if (deviceUsed === "wasm") {
+      genTimeout = setTimeout(() => {
+        log("TIMEOUT: 180s with no output — WASM inference too slow for this device");
+        aborted = true;
+        self.postMessage({ type: "generate:error", data: { message: "Timeout: model too slow on this device (180s)" } });
+      }, 180000);
     }
 
     await model.generate(genOpts);
 
+    if (genTimeout) clearTimeout(genTimeout);
     if (!aborted) {
       log(`Generation done: ${fullText.length} chars`);
       self.postMessage({ type: "generate:done", data: { fullText } });

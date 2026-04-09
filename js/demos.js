@@ -812,6 +812,20 @@ const DemoEngine = {
 
     this._vlmTokenCount = 0;
     this.setStatus(status, translations[currentLang]["demos.vlm_generating"] || "Generating...", "loading");
+    // Elapsed timer for WASM — shows user the model is working (first token can take 1-2 min on mobile)
+    if (this._vlmDevice === "wasm") {
+      const startTime = Date.now();
+      if (this._vlmElapsedTimer) clearInterval(this._vlmElapsedTimer);
+      this._vlmElapsedTimer = setInterval(() => {
+        if (this._vlmTokenCount > 0 || !this._vlmWorker) {
+          clearInterval(this._vlmElapsedTimer);
+          this._vlmElapsedTimer = null;
+          return;
+        }
+        const elapsed = Math.round((Date.now() - startTime) / 1000);
+        this.setStatus(status, `Processing image... (${elapsed}s)`, "loading");
+      }, 1000);
+    }
 
     // Append language hint based on current page language
     let finalPrompt = prompt;
