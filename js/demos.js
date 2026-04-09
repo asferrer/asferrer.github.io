@@ -267,6 +267,7 @@ const DemoEngine = {
 
       const detect = async () => {
         if (!this.stream) return;
+        if (!video.videoWidth) { this.animId = requestAnimationFrame(detect); return; }
         const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
         let preds = await this.models.detection.detect(video, maxResults);
         preds = preds.filter(p => p.score >= conf);
@@ -412,6 +413,7 @@ const DemoEngine = {
 
       const detect = () => {
         if (!this.stream) return;
+        if (!video.videoWidth) { this.animId = requestAnimationFrame(detect); return; }
         const results = this.models.pose.detectForVideo(video, performance.now());
         const { minConf, showSkeleton, showPoints } = this.getPoseOpts();
 
@@ -849,7 +851,10 @@ const DemoEngine = {
   _captionLoop() {
     if (!this._vlmWebcamActive || !this.stream) return;
     const video = document.getElementById("vlmVideo");
-    if (!video || !video.videoWidth) return;
+    if (!video || !video.videoWidth) {
+      if (this._vlmWebcamActive && this.stream) setTimeout(() => this._captionLoop(), 500);
+      return;
+    }
 
     const c = document.createElement("canvas");
     c.width = video.videoWidth;
