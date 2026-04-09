@@ -55,13 +55,13 @@ async function handleLoad() {
     deviceUsed = await detectDevice();
 
     // WASM: vision_encoder needs fp32 (ConvInteger not supported in WASM),
-    // decoder can use int8 to save ~400MB download.
+    // decoder uses q4 for faster inference and smaller download on mobile.
     const dtype = deviceUsed === "webgpu"
       ? "fp32"
       : {
           embed_tokens: "fp32",
           vision_encoder: "fp32",
-          decoder_model_merged: "int8"
+          decoder_model_merged: "q4"
         };
 
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });

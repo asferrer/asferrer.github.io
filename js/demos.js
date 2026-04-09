@@ -674,6 +674,7 @@ const DemoEngine = {
         this.setStatus(status, msg.data.message, "error");
       } else if (msg.type === "generate:token") {
         this._vlmPendingText += msg.data.token;
+        this._vlmTokenCount = (this._vlmTokenCount || 0) + 1;
         if (!this._vlmWebcamActive) {
           const output = document.getElementById("vlmOutput");
           if (output) {
@@ -681,6 +682,10 @@ const DemoEngine = {
             const node = document.createTextNode(msg.data.token);
             cursor ? output.insertBefore(node, cursor) : output.appendChild(node);
           }
+        }
+        // Show token progress on WASM so mobile users know it's working
+        if (this._vlmDevice === "wasm") {
+          this.setStatus(status, `Generating... (${this._vlmTokenCount} tokens)`, "loading");
         }
       } else if (msg.type === "generate:done") {
         const output = document.getElementById("vlmOutput");
@@ -727,7 +732,7 @@ const DemoEngine = {
     let prompt = document.getElementById("vlmPrompt")?.value?.trim();
     // In webcam mode use a default prompt if empty
     if (!prompt && this._vlmWebcamActive) {
-      prompt = "Describe what you see in this image in exactly two short sentences.";
+      prompt = "Describe what you see in this image in one short sentence.";
     }
     if (!this._vlmImageBase64 || !prompt) {
       // Keep caption loop alive in webcam mode
@@ -757,6 +762,7 @@ const DemoEngine = {
       }
     }
 
+    this._vlmTokenCount = 0;
     this.setStatus(status, translations[currentLang]["demos.vlm_generating"] || "Generating...", "loading");
 
     // Append language hint based on current page language
@@ -766,26 +772,37 @@ const DemoEngine = {
     }
 
     const { maxTokens, temperature } = this.getVlmOpts();
+    // Cap tokens more aggressively on WASM/mobile for usable response times
+    const isWasm = this._vlmDevice === "wasm";
+    const effectiveMaxTokens = this._vlmWebcamActive
+      ? Math.min(maxTokens, isWasm ? 30 : 60)
+      : (isWasm ? Math.min(maxTokens, 100) : maxTokens);
     this._vlmWorker.postMessage({
       type: "generate",
       data: {
         image: this._vlmImageBase64,
         prompt: finalPrompt,
-        maxTokens: this._vlmWebcamActive ? Math.min(maxTokens, 60) : maxTokens,
+        maxTokens: effectiveMaxTokens,
         temperature
       }
     });
   },
 
   stopVlm() {
+    // Only abort current generation — keep worker alive for manual reuse
     if (this._vlmWorker) {
       this._vlmWorker.postMessage({ type: "abort" });
+    }
+    if (this._vlmTypewriterId) {
+      clearTimeout(this._vlmTypewriterId);
+      this._vlmTypewriterId = null;
     }
     const output = document.getElementById("vlmOutput");
     if (output) {
       const cursor = output.querySelector(".cursor");
       if (cursor) cursor.remove();
     }
+    this._vlmPendingText = "";
   },
 
   setVlmImage(base64) {
@@ -837,21 +854,34 @@ const DemoEngine = {
   stopVlmWebcam() {
     this._vlmWebcamActive = false;
     this._vlmCaptionPending = false;
+    if (this._vlmTypewriterId) {
+      clearTimeout(this._vlmTypewriterId);
+      this._vlmTypewriterId = null;
+    }
     const video = document.getElementById("vlmVideo");
     this.stopWebcam(video);
     if (video) video.style.display = "none";
-    this.stopVlm();
+    // Terminate worker to free model memory (~600MB)
+    if (this._vlmWorker) {
+      this._vlmWorker.terminate();
+      this._vlmWorker = null;
+      this._vlmReady = false;
+    }
+    this._vlmPendingText = "";
+    this._vlmImageBase64 = null;
   },
 
   _typewriterReveal(el, text, onDone) {
+    if (this._vlmTypewriterId) clearTimeout(this._vlmTypewriterId);
     el.textContent = "";
     let i = 0;
     const step = () => {
       if (i < text.length) {
         el.textContent = text.slice(0, ++i);
-        setTimeout(step, 18);
-      } else if (onDone) {
-        onDone();
+        this._vlmTypewriterId = setTimeout(step, 18);
+      } else {
+        this._vlmTypewriterId = null;
+        if (onDone) onDone();
       }
     };
     step();
@@ -1069,7 +1099,7 @@ function initDemos() {
       }
     });
     // Set initial prompt
-    vlmPrompt.value = translations[currentLang]["demos.vlm_preset_describe"] || "Briefly describe what you see in 1-2 sentences";
+    vlmPrompt.value = translations[currentLang]["demos.vlm_preset_describe"] || "Briefly describe what you see in 1 sentence";
   }
 
   // VLM — generate button
