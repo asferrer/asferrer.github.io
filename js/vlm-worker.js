@@ -55,8 +55,14 @@ async function handleLoad() {
     deviceUsed = await detectDevice();
 
     // q4/q4f16 use MatMulNBits which is WebGPU-only.
-    // WASM needs fp32 (int8/uint8 also work but fp32 is safest).
-    const dtype = deviceUsed === "webgpu" ? "fp32" : "fp32";
+    // WASM uses per-module int8 (~260MB, standard ONNX ops).
+    const dtype = deviceUsed === "webgpu"
+      ? "fp32"
+      : {
+          embed_tokens: "fp32",
+          vision_encoder: "int8",
+          decoder_model_merged: "int8"
+        };
 
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });
 
