@@ -55,13 +55,13 @@ async function handleLoad() {
     deviceUsed = await detectDevice();
 
     // WASM: vision_encoder needs fp32 (ConvInteger not supported in WASM),
-    // decoder uses q4 for faster inference and smaller download on mobile.
+    // decoder uses int8 (q4 MatMulNBits produces bad logits on WASM SIMD128).
     const dtype = deviceUsed === "webgpu"
       ? "fp32"
       : {
           embed_tokens: "fp32",
           vision_encoder: "fp32",
-          decoder_model_merged: "q4"
+          decoder_model_merged: "int8"
         };
 
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });

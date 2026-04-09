@@ -730,7 +730,13 @@ const DemoEngine = {
           }
         }
       } else if (msg.type === "generate:error") {
-        this.setStatus(status, msg.data.message, "error");
+        if (this._vlmWebcamActive) {
+          // Retry caption loop on generation error
+          this._vlmPendingText = "";
+          setTimeout(() => this._captionLoop(), 1000);
+        } else {
+          this.setStatus(status, msg.data.message, "error");
+        }
         const btn = document.getElementById("vlmGenerate");
         if (btn) {
           btn.disabled = false;
