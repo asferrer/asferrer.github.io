@@ -96,20 +96,33 @@ const DemoEngine = {
   },
 
   async flipCamera() {
-    this._facingMode = this._facingMode === "user" ? "environment" : "user";
+    const prev = this._facingMode;
+    this._facingMode = prev === "user" ? "environment" : "user";
     this._updateCameraIcons();
-    // Find active video element and restart stream
+
     const activeVideo = document.querySelector(".demo-content:not(.hidden) video");
-    if (activeVideo && this.stream) {
+    if (!activeVideo || !this.stream) return;
+
+    try {
       this.stream.getTracks().forEach(t => t.stop());
       this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+        video: { facingMode: { exact: this._facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }
       });
       activeVideo.srcObject = this.stream;
       await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
-      // Resize canvas if present
       const canvas = activeVideo.parentElement?.querySelector("canvas");
       if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
+    } catch {
+      // exact constraint failed (e.g. no rear camera) - fall back to any camera
+      this._facingMode = prev;
+      this._updateCameraIcons();
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        activeVideo.srcObject = this.stream;
+        await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
+      } catch { /* stream lost, user will need to restart */ }
     }
   },
 

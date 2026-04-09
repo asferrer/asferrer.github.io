@@ -1590,9 +1590,9 @@ footer {
   .filter-bar { flex-wrap: wrap; }
   .education-grid { grid-template-columns: 1fr; }
   .skills-grid { grid-template-columns: 1fr; }
-  .demo-tab { padding: 7px 8px; font-size: 0.7rem; }
+  .demo-tab { padding: 8px 12px; font-size: 0.7rem; gap: 0; justify-content: center; }
   .demo-tab span { display: none; }
-  .demo-tab i { margin-right: 0; font-size: 1rem; }
+  .demo-tab i { margin: 0; font-size: 1.1rem; }
   .demo-viewport { min-height: 200px; }
   .demo-viewport canvas { max-height: clamp(200px, 55vw, 360px); }
   .vlm-viewport { min-height: 220px; }
