@@ -212,7 +212,7 @@ const DemoEngine = {
       await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
       await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd");
 
-      this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading COCO-SSD model (~2MB)...", "loading");
+      this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading model...", "loading");
       if (!this.models.detection) {
         this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
       }
@@ -434,7 +434,7 @@ const DemoEngine = {
     this.hidePlaceholder("demo-depth");
 
     try {
-      this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading Depth Anything model (~27MB, first time only)...", "loading");
+      this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB, first time only)...", "loading");
 
       const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
       env.allowLocalModels = false;
@@ -509,7 +509,7 @@ const DemoEngine = {
     this.hidePlaceholder("demo-depth");
 
     try {
-      this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading Depth Anything model (~27MB)...", "loading");
+      this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB)...", "loading");
       const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
       env.allowLocalModels = false;
       if (!this.models.depth) {
@@ -609,7 +609,7 @@ const DemoEngine = {
 
     this.unloadOtherModels("vlm");
 
-    this.setStatus(status, translations[currentLang]["demos.vlm_loading"] || "Downloading SmolVLM model...", "loading");
+    this.setStatus(status, translations[currentLang]["demos.vlm_loading"] || "Downloading model...", "loading");
     if (progress) progress.style.display = "";
 
     if (this._vlmWorker) { this._vlmWorker.terminate(); this._vlmWorker = null; }
