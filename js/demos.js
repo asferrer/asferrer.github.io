@@ -600,7 +600,18 @@ const DemoEngine = {
     if (progress) progress.style.display = "";
 
     if (this._vlmWorker) { this._vlmWorker.terminate(); this._vlmWorker = null; }
-    this._vlmWorker = new Worker("js/vlm-worker.js", { type: "module" });
+    try {
+      this._vlmWorker = new Worker("js/vlm-worker.js", { type: "module" });
+    } catch (e) {
+      this.setStatus(status, e.message || "Failed to start VLM worker", "error");
+      if (progress) progress.style.display = "none";
+      return;
+    }
+
+    this._vlmWorker.onerror = (e) => {
+      if (progress) progress.style.display = "none";
+      this.setStatus(status, e.message || "VLM worker error", "error");
+    };
 
     this._vlmWorker.onmessage = ({ data: msg }) => {
       if (msg.type === "load:device") {

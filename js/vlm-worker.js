@@ -17,6 +17,14 @@ let model = null;
 let aborted = false;
 let deviceUsed = "webgpu";
 
+// Global error handler - prevents silent worker crash
+self.onerror = (e) => {
+  self.postMessage({ type: "load:error", data: { message: e.message || "Worker error" } });
+};
+self.onunhandledrejection = (e) => {
+  self.postMessage({ type: "load:error", data: { message: e.reason?.message || "Unhandled error in worker" } });
+};
+
 self.onmessage = async ({ data: msg }) => {
   if (msg.type === "load") {
     await handleLoad();
@@ -45,26 +53,27 @@ async function handleLoad() {
     }
 
     deviceUsed = await detectDevice();
-    const dtype = deviceUsed === "webgpu" ? "fp32" : "q4";
+
+    // q4/q4f16 use MatMulNBits which is WebGPU-only.
+    // WASM needs fp32 (int8/uint8 also work but fp32 is safest).
+    const dtype = deviceUsed === "webgpu" ? "fp32" : "fp32";
 
     self.postMessage({ type: "load:device", data: { device: deviceUsed } });
 
-    processor = await AutoProcessor.from_pretrained(MODEL_ID, {
-      progress_callback: (p) => {
-        if (p.progress != null) {
-          self.postMessage({ type: "load:progress", data: { progress: Math.round(p.progress) } });
-        }
+    const progressCb = (p) => {
+      if (p.progress != null) {
+        self.postMessage({ type: "load:progress", data: { progress: Math.round(p.progress) } });
       }
+    };
+
+    processor = await AutoProcessor.from_pretrained(MODEL_ID, {
+      progress_callback: progressCb
     });
 
     model = await AutoModelForVision2Seq.from_pretrained(MODEL_ID, {
       dtype,
       device: deviceUsed,
-      progress_callback: (p) => {
-        if (p.progress != null) {
-          self.postMessage({ type: "load:progress", data: { progress: Math.round(p.progress) } });
-        }
-      }
+      progress_callback: progressCb
     });
 
     self.postMessage({ type: "load:ready", data: { device: deviceUsed } });
