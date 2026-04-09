@@ -8,7 +8,7 @@ import {
   AutoModelForVision2Seq,
   TextStreamer,
   load_image,
-} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers";
+} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 const MODEL_ID = "HuggingFaceTB/SmolVLM-256M-Instruct";
 

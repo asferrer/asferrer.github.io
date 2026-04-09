@@ -103,17 +103,23 @@ const DemoEngine = {
     const activeVideo = document.querySelector(".demo-content:not(.hidden) video");
     if (!activeVideo || !this.stream) return;
 
-    // Get new stream BEFORE stopping the old one to avoid breaking animation loops
+    // Get new stream BEFORE stopping old one to avoid breaking animation loops.
+    // Try exact first (reliable on mobile), fall back to ideal (desktop).
     let newStream;
     try {
       newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { exact: this._facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }
       });
     } catch {
-      // exact constraint failed (e.g. no rear camera) - revert
-      this._facingMode = prev;
-      this._updateCameraIcons();
-      return;
+      try {
+        newStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+      } catch {
+        this._facingMode = prev;
+        this._updateCameraIcons();
+        return;
+      }
     }
 
     // Atomic swap: stop old tracks, assign new stream
@@ -435,7 +441,7 @@ const DemoEngine = {
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB, first time only)...", "loading");
 
-      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
+      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
       env.allowLocalModels = false;
 
       if (!this.models.depth) {
@@ -509,7 +515,7 @@ const DemoEngine = {
 
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB)...", "loading");
-      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers");
+      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
       env.allowLocalModels = false;
       if (!this.models.depth) {
         this.models.depth = await pipeline("depth-estimation", "Xenova/depth-anything-small-hf");
