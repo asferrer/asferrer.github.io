@@ -928,7 +928,7 @@ section {
 }
 .demo-viewport canvas {
   max-width: 100%;
-  max-height: clamp(260px, 50vw, 480px);
+  max-height: clamp(260px, 45vh, 480px);
   border-radius: var(--radius-sm);
 }
 .demo-placeholder {
@@ -970,12 +970,12 @@ section {
 .vlm-viewport video {
   position: relative !important;
   width: 100%;
-  max-height: clamp(260px, 50vw, 480px);
+  max-height: clamp(260px, 45vh, 480px);
   opacity: 1 !important;
   object-fit: contain;
 }
 .vlm-image-preview {
-  max-height: clamp(260px, 50vw, 480px);
+  max-height: clamp(260px, 45vh, 480px);
   max-width: 100%;
   object-fit: contain;
   border-radius: var(--radius-sm);
@@ -1594,9 +1594,29 @@ footer {
   .demo-tab span { display: none; }
   .demo-tab i { margin: 0; font-size: 1.1rem; }
   .demo-viewport { min-height: 200px; }
-  .demo-viewport canvas { max-height: clamp(200px, 55vw, 360px); }
+  .demo-viewport canvas { max-height: clamp(200px, 45vh, 360px); }
   .vlm-viewport { min-height: 220px; }
-  .vlm-viewport video { max-height: clamp(200px, 55vw, 360px); }
-  .vlm-image-preview { max-height: clamp(200px, 55vw, 360px); }
+  .vlm-viewport video { max-height: clamp(200px, 45vh, 360px); }
+  .vlm-image-preview { max-height: clamp(200px, 45vh, 360px); }
   .camera-flip-btn { min-width: 44px; max-width: 44px; width: 44px; }
+}
+
+/* Portrait orientation: maximize viewport height */
+@media (orientation: portrait) and (max-width: 768px) {
+  .demo-viewport { min-height: 50vh; }
+  .demo-viewport canvas { max-height: 55vh; }
+  .vlm-viewport { min-height: 50vh; }
+  .vlm-viewport video { max-height: 55vh; }
+  .vlm-image-preview { max-height: 55vh; }
+}
+
+/* Landscape orientation on mobile: compact sidebar, wide viewport */
+@media (orientation: landscape) and (max-height: 500px) {
+  .demo-content { grid-template-columns: 220px 1fr; }
+  .demo-viewport { min-height: 70vh; }
+  .demo-viewport canvas { max-height: 75vh; }
+  .vlm-viewport { min-height: 70vh; }
+  .vlm-viewport video { max-height: 75vh; }
+  .vlm-image-preview { max-height: 75vh; }
+  .demo-sidebar h3 { font-size: 0.95rem; margin-bottom: 4px; }
 }

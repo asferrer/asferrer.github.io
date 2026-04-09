@@ -103,27 +103,26 @@ const DemoEngine = {
     const activeVideo = document.querySelector(".demo-content:not(.hidden) video");
     if (!activeVideo || !this.stream) return;
 
+    // Get new stream BEFORE stopping the old one to avoid breaking animation loops
+    let newStream;
     try {
-      this.stream.getTracks().forEach(t => t.stop());
-      this.stream = await navigator.mediaDevices.getUserMedia({
+      newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { exact: this._facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }
       });
-      activeVideo.srcObject = this.stream;
-      await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
-      const canvas = activeVideo.parentElement?.querySelector("canvas");
-      if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
     } catch {
-      // exact constraint failed (e.g. no rear camera) - fall back to any camera
+      // exact constraint failed (e.g. no rear camera) - revert
       this._facingMode = prev;
       this._updateCameraIcons();
-      try {
-        this.stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
-        });
-        activeVideo.srcObject = this.stream;
-        await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
-      } catch { /* stream lost, user will need to restart */ }
+      return;
     }
+
+    // Atomic swap: stop old tracks, assign new stream
+    this.stream.getTracks().forEach(t => t.stop());
+    this.stream = newStream;
+    activeVideo.srcObject = this.stream;
+    await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
+    const canvas = activeVideo.parentElement?.querySelector("canvas");
+    if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
   },
 
   _updateCameraIcons() {
