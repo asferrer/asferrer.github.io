@@ -104,22 +104,32 @@ const DemoEngine = {
     this._isFlipping = true;
 
     try {
-      // Enumerate real devices to cycle by deviceId (works on mobile + desktop)
-      const devices = (await navigator.mediaDevices.enumerateDevices())
-        .filter(d => d.kind === "videoinput");
-      if (devices.length < 2) return;
+      const newFacing = this._facingMode === "user" ? "environment" : "user";
+      let newStream;
 
-      const currentId = this.stream.getVideoTracks()[0]?.getSettings()?.deviceId;
-      const currentIdx = devices.findIndex(d => d.deviceId === currentId);
-      const nextDevice = devices[(currentIdx + 1) % devices.length];
+      try {
+        // Primary: facingMode switch (most reliable on mobile)
+        newStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { exact: newFacing }, width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+      } catch {
+        // Fallback: cycle through devices by deviceId (desktop / multi-cam)
+        const devices = (await navigator.mediaDevices.enumerateDevices())
+          .filter(d => d.kind === "videoinput" && d.deviceId);
+        if (devices.length < 2) return;
 
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: nextDevice.deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
-      });
+        const currentId = this.stream.getVideoTracks()[0]?.getSettings()?.deviceId;
+        const currentIdx = devices.findIndex(d => d.deviceId === currentId);
+        const nextDevice = devices[((currentIdx < 0 ? 0 : currentIdx) + 1) % devices.length];
 
-      // Update facingMode for icon based on actual track info
+        newStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: nextDevice.deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+      }
+
+      // Detect actual facingMode from new stream
       const facing = newStream.getVideoTracks()[0]?.getSettings()?.facingMode;
-      this._facingMode = facing || (this._facingMode === "user" ? "environment" : "user");
+      this._facingMode = facing || newFacing;
       this._updateCameraIcons();
 
       // Atomic swap
@@ -135,7 +145,6 @@ const DemoEngine = {
       const canvas = activeVideo.parentElement?.querySelector("canvas");
       if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
     } catch {
-      // getUserMedia failed — revert icon
       this._facingMode = this._facingMode === "user" ? "environment" : "user";
       this._updateCameraIcons();
     } finally {
