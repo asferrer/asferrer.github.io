@@ -708,8 +708,16 @@ const DemoEngine = {
 
   generateVlm() {
     const status = "vlmStatus";
-    const prompt = document.getElementById("vlmPrompt")?.value?.trim();
-    if (!this._vlmImageBase64 || !prompt) return;
+    let prompt = document.getElementById("vlmPrompt")?.value?.trim();
+    // In webcam mode use a default prompt if empty
+    if (!prompt && this._vlmWebcamActive) {
+      prompt = "Describe what you see in this image briefly.";
+    }
+    if (!this._vlmImageBase64 || !prompt) {
+      // Keep caption loop alive in webcam mode
+      if (this._vlmWebcamActive) setTimeout(() => this._captionLoop(), 1000);
+      return;
+    }
 
     const output = document.getElementById("vlmOutput");
     if (this._vlmWebcamActive) {
@@ -730,7 +738,6 @@ const DemoEngine = {
         btn.disabled = true;
         const span = btn.querySelector("[data-i18n]");
         if (span) span.textContent = translations[currentLang]["demos.vlm_stop_gen"] || "Stop";
-        btn.disabled = false;
       }
     }
 

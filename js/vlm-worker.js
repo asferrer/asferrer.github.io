@@ -54,13 +54,13 @@ async function handleLoad() {
 
     deviceUsed = await detectDevice();
 
-    // q4/q4f16 use MatMulNBits which is WebGPU-only.
-    // WASM uses per-module int8 (~260MB, standard ONNX ops).
+    // WASM: vision_encoder needs fp32 (ConvInteger not supported in WASM),
+    // decoder can use int8 to save ~400MB download.
     const dtype = deviceUsed === "webgpu"
       ? "fp32"
       : {
           embed_tokens: "fp32",
-          vision_encoder: "int8",
+          vision_encoder: "fp32",
           decoder_model_merged: "int8"
         };
 
