@@ -670,14 +670,15 @@ const DemoEngine = {
         const output = document.getElementById("vlmOutput");
         if (this._vlmWebcamActive) {
           // Smooth single replacement in webcam mode
-          if (output && this._vlmPendingText.trim()) {
+          const captionText = this._vlmPendingText.trim();
+          this._vlmPendingText = "";
+          if (output && captionText) {
             output.style.opacity = "0.5";
             setTimeout(() => {
-              output.textContent = this._vlmPendingText.trim();
+              output.textContent = captionText;
               output.style.opacity = "1";
             }, 150);
           }
-          this._vlmPendingText = "";
           setTimeout(() => this._captionLoop(), 300);
         } else {
           if (output) {
