@@ -105,35 +105,39 @@ const DemoEngine = {
 
     try {
       const newFacing = this._facingMode === "user" ? "environment" : "user";
-      let newStream;
 
+      // Step 1: Stop old tracks to release camera hardware FIRST
+      // Mobile browsers cannot open two cameras simultaneously (WebKit #238492)
+      this.stream.getTracks().forEach(t => t.stop());
+
+      // Step 2: Request new stream (camera hardware now free)
+      let newStream;
       try {
-        // Primary: facingMode switch (most reliable on mobile)
         newStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { exact: newFacing }, width: { ideal: 640 }, height: { ideal: 480 } }
         });
       } catch {
-        // Fallback: cycle through devices by deviceId (desktop / multi-cam)
-        const devices = (await navigator.mediaDevices.enumerateDevices())
-          .filter(d => d.kind === "videoinput" && d.deviceId);
-        if (devices.length < 2) return;
-
-        const currentId = this.stream.getVideoTracks()[0]?.getSettings()?.deviceId;
-        const currentIdx = devices.findIndex(d => d.deviceId === currentId);
-        const nextDevice = devices[((currentIdx < 0 ? 0 : currentIdx) + 1) % devices.length];
-
-        newStream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: { exact: nextDevice.deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
-        });
+        try {
+          // Fallback: facingMode as preference (not exact)
+          newStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: newFacing, width: { ideal: 640 }, height: { ideal: 480 } }
+          });
+        } catch {
+          // Last resort: deviceId cycling
+          const devices = (await navigator.mediaDevices.enumerateDevices())
+            .filter(d => d.kind === "videoinput" && d.deviceId);
+          if (devices.length < 2) throw new Error("No alternate camera");
+          newStream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: { exact: devices[0].deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+          });
+        }
       }
 
-      // Detect actual facingMode from new stream
+      // Step 3: Apply new stream
       const facing = newStream.getVideoTracks()[0]?.getSettings()?.facingMode;
       this._facingMode = facing || newFacing;
       this._updateCameraIcons();
 
-      // Atomic swap
-      this.stream.getTracks().forEach(t => t.stop());
       this.stream = newStream;
       activeVideo.srcObject = newStream;
 
@@ -145,7 +149,17 @@ const DemoEngine = {
       const canvas = activeVideo.parentElement?.querySelector("canvas");
       if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
     } catch {
-      this._facingMode = this._facingMode === "user" ? "environment" : "user";
+      // Recovery: restart with any available camera
+      try {
+        const recovery = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        this.stream = recovery;
+        activeVideo.srcObject = recovery;
+        await activeVideo.play();
+        const facing = recovery.getVideoTracks()[0]?.getSettings()?.facingMode;
+        this._facingMode = facing || this._facingMode;
+      } catch { /* total failure — user must restart demo */ }
       this._updateCameraIcons();
     } finally {
       this._isFlipping = false;
