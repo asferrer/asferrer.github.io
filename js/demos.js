@@ -70,6 +70,7 @@ const DemoEngine = {
   _vlmImageBase64: null,
   _vlmWebcamActive: false,
   _vlmPendingText: "",
+  _vlmTypewriterId: null,
 
   /* ---------- Script loader ---------- */
   loadScript(src) {
@@ -85,6 +86,7 @@ const DemoEngine = {
 
   /* ---------- Webcam helpers ---------- */
   _facingMode: "user",
+  _isFlipping: false,
 
   async startWebcam(video) {
     if (this.stream) this.stopWebcam(video);
@@ -96,39 +98,49 @@ const DemoEngine = {
   },
 
   async flipCamera() {
-    const prev = this._facingMode;
-    this._facingMode = prev === "user" ? "environment" : "user";
-    this._updateCameraIcons();
-
+    if (this._isFlipping) return;
     const activeVideo = document.querySelector(".demo-content:not(.hidden) video");
     if (!activeVideo || !this.stream) return;
+    this._isFlipping = true;
 
-    // Get new stream BEFORE stopping old one to avoid breaking animation loops.
-    // Try exact first (reliable on mobile), fall back to ideal (desktop).
-    let newStream;
     try {
-      newStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: this._facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }
-      });
-    } catch {
-      try {
-        newStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
-        });
-      } catch {
-        this._facingMode = prev;
-        this._updateCameraIcons();
-        return;
-      }
-    }
+      // Enumerate real devices to cycle by deviceId (works on mobile + desktop)
+      const devices = (await navigator.mediaDevices.enumerateDevices())
+        .filter(d => d.kind === "videoinput");
+      if (devices.length < 2) return;
 
-    // Atomic swap: stop old tracks, assign new stream
-    this.stream.getTracks().forEach(t => t.stop());
-    this.stream = newStream;
-    activeVideo.srcObject = this.stream;
-    await new Promise(r => { activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); }; });
-    const canvas = activeVideo.parentElement?.querySelector("canvas");
-    if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
+      const currentId = this.stream.getVideoTracks()[0]?.getSettings()?.deviceId;
+      const currentIdx = devices.findIndex(d => d.deviceId === currentId);
+      const nextDevice = devices[(currentIdx + 1) % devices.length];
+
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: nextDevice.deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+      });
+
+      // Update facingMode for icon based on actual track info
+      const facing = newStream.getVideoTracks()[0]?.getSettings()?.facingMode;
+      this._facingMode = facing || (this._facingMode === "user" ? "environment" : "user");
+      this._updateCameraIcons();
+
+      // Atomic swap
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = newStream;
+      activeVideo.srcObject = newStream;
+
+      await new Promise(r => {
+        if (activeVideo.readyState >= 1) { activeVideo.play(); r(); return; }
+        activeVideo.onloadedmetadata = () => { activeVideo.play(); r(); };
+      });
+
+      const canvas = activeVideo.parentElement?.querySelector("canvas");
+      if (canvas) { canvas.width = activeVideo.videoWidth; canvas.height = activeVideo.videoHeight; }
+    } catch {
+      // getUserMedia failed — revert icon
+      this._facingMode = this._facingMode === "user" ? "environment" : "user";
+      this._updateCameraIcons();
+    } finally {
+      this._isFlipping = false;
+    }
   },
 
   _updateCameraIcons() {
@@ -652,34 +664,28 @@ const DemoEngine = {
         if (progress) progress.style.display = "none";
         this.setStatus(status, msg.data.message, "error");
       } else if (msg.type === "generate:token") {
-        if (this._vlmWebcamActive) {
-          this._vlmPendingText += msg.data.token;
-        } else {
+        this._vlmPendingText += msg.data.token;
+        if (!this._vlmWebcamActive) {
           const output = document.getElementById("vlmOutput");
           if (output) {
             const cursor = output.querySelector(".cursor");
-            if (cursor) cursor.remove();
-            output.textContent += msg.data.token;
-            const c = document.createElement("span");
-            c.className = "cursor";
-            output.appendChild(c);
-            output.scrollTop = output.scrollHeight;
+            const node = document.createTextNode(msg.data.token);
+            cursor ? output.insertBefore(node, cursor) : output.appendChild(node);
           }
         }
       } else if (msg.type === "generate:done") {
         const output = document.getElementById("vlmOutput");
         if (this._vlmWebcamActive) {
-          // Smooth single replacement in webcam mode
+          // Typewriter reveal in webcam mode
           const captionText = this._vlmPendingText.trim();
           this._vlmPendingText = "";
           if (output && captionText) {
-            output.style.opacity = "0.5";
-            setTimeout(() => {
-              output.textContent = captionText;
-              output.style.opacity = "1";
-            }, 150);
+            this._typewriterReveal(output, captionText, () => {
+              setTimeout(() => this._captionLoop(), 800);
+            });
+          } else {
+            setTimeout(() => this._captionLoop(), 300);
           }
-          setTimeout(() => this._captionLoop(), 300);
         } else {
           if (output) {
             const cursor = output.querySelector(".cursor");
@@ -712,7 +718,7 @@ const DemoEngine = {
     let prompt = document.getElementById("vlmPrompt")?.value?.trim();
     // In webcam mode use a default prompt if empty
     if (!prompt && this._vlmWebcamActive) {
-      prompt = "Describe what you see in this image briefly.";
+      prompt = "Describe what you see in this image in exactly two short sentences.";
     }
     if (!this._vlmImageBase64 || !prompt) {
       // Keep caption loop alive in webcam mode
@@ -753,7 +759,12 @@ const DemoEngine = {
     const { maxTokens, temperature } = this.getVlmOpts();
     this._vlmWorker.postMessage({
       type: "generate",
-      data: { image: this._vlmImageBase64, prompt: finalPrompt, maxTokens, temperature }
+      data: {
+        image: this._vlmImageBase64,
+        prompt: finalPrompt,
+        maxTokens: this._vlmWebcamActive ? Math.min(maxTokens, 60) : maxTokens,
+        temperature
+      }
     });
   },
 
@@ -821,6 +832,20 @@ const DemoEngine = {
     this.stopWebcam(video);
     if (video) video.style.display = "none";
     this.stopVlm();
+  },
+
+  _typewriterReveal(el, text, onDone) {
+    el.textContent = "";
+    let i = 0;
+    const step = () => {
+      if (i < text.length) {
+        el.textContent = text.slice(0, ++i);
+        setTimeout(step, 18);
+      } else if (onDone) {
+        onDone();
+      }
+    };
+    step();
   },
 
   /* ---------- Cleanup ---------- */
