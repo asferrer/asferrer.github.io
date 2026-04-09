@@ -118,13 +118,20 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
       }
     });
 
-    await model.generate({
+    const genOpts = {
       ...inputs,
       max_new_tokens: maxTokens || 200,
-      do_sample: false,
       repetition_penalty: 1.2,
       streamer,
-    });
+    };
+    if (temperature && temperature > 0) {
+      genOpts.do_sample = true;
+      genOpts.temperature = temperature;
+    } else {
+      genOpts.do_sample = false;
+    }
+
+    await model.generate(genOpts);
 
     if (!aborted) {
       self.postMessage({ type: "generate:done", data: { fullText } });
