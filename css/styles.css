@@ -1246,6 +1246,8 @@ section {
 .award-card .fa-code { color: var(--accent-blue); }
 .award-card h4 { font-size: 1rem; margin-bottom: 4px; }
 .award-card p { font-size: 0.85rem; color: var(--text-secondary); }
+.award-card .award-link { display: block; color: inherit; text-decoration: none; }
+.award-card .award-link .fa-kaggle { color: var(--accent-blue); }
 
 /* Podcast */
 .podcast-section {

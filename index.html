@@ -132,7 +132,7 @@
             <span class="stat-label" data-i18n="about.stat_teams">Engineering Teams Led</span>
           </div>
           <div class="stat-card glass-card">
-            <span class="stat-number" data-count="8">0</span><span class="stat-plus">+</span>
+            <span class="stat-number" data-count="10">0</span><span class="stat-plus">+</span>
             <span class="stat-label" data-i18n="about.stat_products">CV Products Shipped</span>
           </div>
           <div class="stat-card glass-card">
@@ -163,7 +163,7 @@
             <p class="timeline-location"><i class="fas fa-map-marker-alt"></i> Madrid / Alicante, Spain</p>
             <ul class="timeline-bullets">
               <li data-i18n="experience.minsait_1">Defined technical roadmap and methodology for up to 5 engineering teams (Backend, Data, Deployment), establishing best practices for development and testing.</li>
-              <li data-i18n="experience.minsait_2">Led design and deployment of 8+ Computer Vision products across urban, transport, energy, and environmental sectors in Spain, Europe, and the US.</li>
+              <li data-i18n="experience.minsait_2">Led design and deployment of 10+ Computer Vision products across urban, transport, aviation, energy, and environmental sectors in Spain, Europe, and the US.</li>
               <li data-i18n="experience.minsait_3">Architected scalable, low-latency pipelines for 24/7 vision inference; reduced inference latency by over 80% (from +1s to sub-200ms).</li>
               <li data-i18n="experience.minsait_4">Led technical engagement with enterprise clients, building PoCs, demos, and advising on successful solution delivery.</li>
             </ul>
@@ -237,6 +237,31 @@
       <div class="projects-grid">
 
         <!-- === PROFESSIONAL PROJECTS === -->
+
+        <!-- SESAR JARVIS -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #1d6fd1 100%)">
+            <div class="project-logos">
+              <span class="logo-text">SESAR JU</span>
+              <span class="logo-text">Indra</span>
+            </div>
+            <div class="project-thumb-icon"><i class="fas fa-plane-departure"></i></div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.jarvis_title">SESAR JARVIS | Airport Safety AI</h3>
+            <p data-i18n="projects.jarvis_desc">AI detection of FOD, taxiway incursions and wildlife hazards for the Airport Digital Assistant, validated with Athens International Airport.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.jarvis_details">Within JARVIS, a SESAR 3 Joint Undertaking project under Horizon Europe, this work delivers real-time computer vision for airport safety as part of the Airport Digital Assistant, led by Athens International Airport together with EUROCONTROL, Indra and Swedavia. The system reuses existing fixed cameras to detect foreign object debris (FOD), taxiway incursions and wildlife hazards, sending AI-generated alerts to controllers and airport operations centres. Training combines real footage with synthetic datasets generated in Blender, and the full lifecycle follows the EASA AI Roadmap objectives for trustworthy, explainable and safe AI in aviation.</p>
+            <div class="project-links">
+              <a href="https://www.sesarju.eu/projects/JARVIS" target="_blank" rel="noopener"><i class="fas fa-globe"></i> SESAR JU</a>
+              <a href="https://www.sesarju.eu/node/5463" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> SESAR Walking Tour</a>
+              <a href="https://cordis.europa.eu/project/id/101114692" target="_blank" rel="noopener"><i class="fas fa-flag"></i> CORDIS</a>
+            </div>
+          </div>
+        </div>
 
         <!-- Q-SPAM -->
         <div class="project-card" data-category="professional" data-reveal="up">
@@ -401,6 +426,22 @@
           </div>
         </div>
 
+        <!-- Telco Multi-Object Tracking POC -->
+        <div class="project-card" data-category="professional" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #8a4fd3 100%)">
+            <div class="project-thumb-icon"><i class="fas fa-people-arrows"></i></div>
+            <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.telco_title">Multi-Object Tracking POC</h3>
+            <p data-i18n="projects.telco_desc">Real-time multi-object tracking proof of concept for a major telecom operator.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.telco_details">Proof of concept for a major telecommunications operator: real-time multi-object detection and tracking over live camera feeds, with identity persistence across occlusions and camera handoffs. The pipeline combines state-of-the-art detectors with modern tracking-by-detection algorithms, optimized for GPU inference and designed to scale across large camera networks.</p>
+          </div>
+        </div>
+
         <!-- === ACADEMIC PROJECTS === -->
 
         <!-- OceanGuard AI -->
@@ -414,12 +455,29 @@
             <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
           </div>
           <div class="project-details">
-            <p data-i18n="projects.ocean_details">Comprehensive platform for monitoring marine pollution using on-device AI. Automatically detects and classifies debris from images, visualizes data on an interactive map, and generates detailed reports with mitigation strategies. Built with a fine-tuned Gemma3n VLM for the Google Gemma3n Hackathon.</p>
+            <p data-i18n="projects.ocean_details">Comprehensive platform for monitoring marine pollution using on-device AI. Automatically detects and classifies debris from images, visualizes data on an interactive map, and generates detailed reports with mitigation strategies. First built with a fine-tuned Gemma3n VLM for the Google Gemma3n Hackathon, and evolved into an on-device agentic marine debris detection system with Gemma 4 for the Gemma 4 Good Hackathon.</p>
             <div class="project-video" data-video="4YRmgjpFcSI"></div>
             <div class="project-links">
               <a href="https://github.com/asferrer/OceanGuard-AI" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
-              <a href="https://www.kaggle.com/competitions/google-gemma-3n-hackathon/writeups/oceanguard-ai-mapping-and-mitigating-marine-pollut" target="_blank" rel="noopener"><i class="fab fa-kaggle"></i> Kaggle</a>
+              <a href="https://www.kaggle.com/competitions/google-gemma-3n-hackathon/writeups/oceanguard-ai-mapping-and-mitigating-marine-pollut" target="_blank" rel="noopener"><i class="fab fa-kaggle"></i> Kaggle (Gemma 3n)</a>
+              <a href="https://www.kaggle.com/competitions/gemma-4-good-hackathon/writeups/oceanguard-ai-on-device-marine-debris-detection-w" target="_blank" rel="noopener"><i class="fab fa-kaggle"></i> Kaggle (Gemma 4)</a>
             </div>
+          </div>
+        </div>
+
+        <!-- PadelCortex -->
+        <div class="project-card" data-category="academic" data-reveal="up">
+          <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #16a34a 100%)">
+            <div class="project-thumb-icon"><i class="fas fa-table-tennis-paddle-ball"></i></div>
+            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+          </div>
+          <div class="project-info">
+            <h3 data-i18n="projects.padel_title">PadelCortex | Smart Tournament Scheduling</h3>
+            <p data-i18n="projects.padel_desc">Padel tournament organizer with automatic scheduling from player and club availability.</p>
+            <button class="project-expand-btn" data-i18n="projects.view_details">View Details</button>
+          </div>
+          <div class="project-details">
+            <p data-i18n="projects.padel_details">Full-stack web platform that organizes padel tournaments end to end: it collects each pair's availability, crosses it with the club's court schedule and generates (or reorganizes) the brackets while minimizing player displacements. Built with Next.js and React, TypeScript, Tailwind CSS and Prisma over PostgreSQL, with bilingual UI and a decoupled scheduling engine combining greedy heuristics with local search.</p>
           </div>
         </div>
 
@@ -877,6 +935,14 @@
       <!-- Papers -->
       <div class="publications-grid">
         <div class="pub-card glass-card" data-reveal="left">
+          <div class="pub-thumb" style="background: linear-gradient(135deg, #192538 0%, #0e7490 100%)"></div>
+          <div class="pub-content">
+            <h3 data-i18n="publications.paper3_title">A Data-Centric Approach for Real-Time Underwater Debris Detection</h3>
+            <p class="pub-meta"><strong data-i18n="publications.paper3_status">Under Review</strong> -Journal submission, 2026</p>
+            <p class="pub-authors">A. Sanchez Ferrer, A.J. Gallego, J. Calvo Zaragoza</p>
+          </div>
+        </div>
+        <div class="pub-card glass-card" data-reveal="left">
           <div class="pub-thumb" style="background-image:url('https://ars.els-cdn.com/content/image/1-s2.0-S0167865522003889-gr1_lrg.jpg')"></div>
           <div class="pub-content">
             <h3 data-i18n="publications.paper1_title">An Experimental Study on Marine Debris Location and Recognition using Object Detection</h3>
@@ -907,6 +973,13 @@
           <i class="fas fa-code"></i>
           <h4>OceanGuard AI</h4>
           <p data-i18n="publications.hackathon_desc">Google Gemma3n Hackathon</p>
+        </div>
+        <div class="award-card glass-card">
+          <a href="https://www.kaggle.com/competitions/gemma-4-good-hackathon/writeups/oceanguard-ai-on-device-marine-debris-detection-w" target="_blank" rel="noopener" class="award-link">
+            <i class="fab fa-kaggle"></i>
+            <h4>OceanGuard AI</h4>
+            <p data-i18n="publications.gemma4_desc">Gemma 4 Good Hackathon</p>
+          </a>
         </div>
         <div class="award-card glass-card">
           <i class="fas fa-trophy"></i>
