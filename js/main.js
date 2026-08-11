@@ -41,14 +41,16 @@ function initNav() {
   });
 
   hamburger.addEventListener("click", () => {
-    navLinks.classList.toggle("open");
-    hamburger.classList.toggle("active");
+    const open = navLinks.classList.toggle("open");
+    hamburger.classList.toggle("active", open);
+    hamburger.setAttribute("aria-expanded", String(open));
   });
 
   navLinks.querySelectorAll("a").forEach(link => {
     link.addEventListener("click", () => {
       navLinks.classList.remove("open");
       hamburger.classList.remove("active");
+      hamburger.setAttribute("aria-expanded", "false");
     });
   });
 

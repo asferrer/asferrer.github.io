@@ -53,6 +53,7 @@
   </script>
 </head>
 <body>
+  <a href="#main" class="skip-link">Skip to content</a>
 
   <!-- ========== NAV ========== -->
   <nav id="navbar">
@@ -73,12 +74,14 @@
         <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
           <span class="lang-flag">EN</span>
         </button>
-        <button class="hamburger" id="hamburger" aria-label="Menu">
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
   </nav>
+
+  <main id="main">
 
   <!-- ========== HERO ========== -->
   <section id="hero">
@@ -622,23 +625,23 @@
       <h2 class="section-title" data-i18n="demos.title">Live Demos</h2>
       <p class="demos-subtitle" data-i18n="demos.subtitle">Real-time Computer Vision models running entirely in your browser — no server required</p>
 
-      <div class="demo-tabs">
-        <button class="demo-tab active" data-demo="detection">
-          <i class="fas fa-crosshairs"></i> <span data-i18n="demos.tab_detection">Object Detection</span>
+      <div class="demo-tabs" role="tablist" aria-label="Live demos">
+        <button class="demo-tab active" data-demo="detection" type="button" role="tab" id="tab-detection" aria-controls="demo-detection" aria-selected="true">
+          <i class="fas fa-crosshairs" aria-hidden="true"></i> <span data-i18n="demos.tab_detection">Object Detection</span>
         </button>
-        <button class="demo-tab" data-demo="pose">
-          <i class="fas fa-person"></i> <span data-i18n="demos.tab_pose">Pose Estimation</span>
+        <button class="demo-tab" data-demo="pose" type="button" role="tab" id="tab-pose" aria-controls="demo-pose" aria-selected="false">
+          <i class="fas fa-person" aria-hidden="true"></i> <span data-i18n="demos.tab_pose">Pose Estimation</span>
         </button>
-        <button class="demo-tab" data-demo="depth">
-          <i class="fas fa-layer-group"></i> <span data-i18n="demos.tab_depth">Depth Estimation</span>
+        <button class="demo-tab" data-demo="depth" type="button" role="tab" id="tab-depth" aria-controls="demo-depth" aria-selected="false">
+          <i class="fas fa-layer-group" aria-hidden="true"></i> <span data-i18n="demos.tab_depth">Depth Estimation</span>
         </button>
-        <button class="demo-tab" data-demo="vlm">
-          <i class="fas fa-brain"></i> <span data-i18n="demos.tab_vlm">Vision Language</span>
+        <button class="demo-tab" data-demo="vlm" type="button" role="tab" id="tab-vlm" aria-controls="demo-vlm" aria-selected="false">
+          <i class="fas fa-brain" aria-hidden="true"></i> <span data-i18n="demos.tab_vlm">Vision Language</span>
         </button>
       </div>
 
       <!-- Object Detection -->
-      <div class="demo-content" id="demo-detection">
+      <div class="demo-content" id="demo-detection" role="tabpanel" aria-labelledby="tab-detection">
         <div class="demo-sidebar">
           <h3 data-i18n="demos.det_title">Real-Time Object Detection</h3>
           <div class="demo-controls">
@@ -658,17 +661,17 @@
           <details class="demo-options-collapsible">
             <summary data-i18n="demos.more_options">More options</summary>
             <div class="demo-options">
-              <label class="demo-option">
-                <span data-i18n="demos.filter_classes">Filter classes</span>
+              <div class="demo-option" role="group" aria-labelledby="detClassFilterLabel">
+                <span id="detClassFilterLabel" data-i18n="demos.filter_classes">Filter classes</span>
                 <div class="det-filter-pills" id="detClassFilter">
-                  <button class="det-pill active" data-group="all" data-i18n="demos.all_classes">All</button>
-                  <button class="det-pill" data-group="person">Person</button>
-                  <button class="det-pill" data-group="vehicle" data-i18n="demos.vehicles">Vehicles</button>
-                  <button class="det-pill" data-group="animal" data-i18n="demos.animals">Animals</button>
-                  <button class="det-pill" data-group="furniture" data-i18n="demos.furniture">Furniture</button>
-                  <button class="det-pill" data-group="food" data-i18n="demos.food">Food</button>
+                  <button type="button" class="det-pill active" data-group="all" data-i18n="demos.all_classes">All</button>
+                  <button type="button" class="det-pill" data-group="person">Person</button>
+                  <button type="button" class="det-pill" data-group="vehicle" data-i18n="demos.vehicles">Vehicles</button>
+                  <button type="button" class="det-pill" data-group="animal" data-i18n="demos.animals">Animals</button>
+                  <button type="button" class="det-pill" data-group="furniture" data-i18n="demos.furniture">Furniture</button>
+                  <button type="button" class="det-pill" data-group="food" data-i18n="demos.food">Food</button>
                 </div>
-              </label>
+              </div>
               <label class="demo-option">
                 <span data-i18n="demos.confidence">Min confidence</span>
                 <div class="range-row">
@@ -696,7 +699,7 @@
       </div>
 
       <!-- Pose Estimation -->
-      <div class="demo-content hidden" id="demo-pose">
+      <div class="demo-content hidden" id="demo-pose" role="tabpanel" aria-labelledby="tab-pose">
         <div class="demo-sidebar">
           <h3 data-i18n="demos.pose_title">Real-Time Pose Estimation</h3>
           <div class="demo-controls">
@@ -747,7 +750,7 @@
       </div>
 
       <!-- Depth Estimation -->
-      <div class="demo-content hidden" id="demo-depth">
+      <div class="demo-content hidden" id="demo-depth" role="tabpanel" aria-labelledby="tab-depth">
         <div class="demo-sidebar">
           <h3 data-i18n="demos.depth_title">Monocular Depth Estimation</h3>
           <div class="demo-controls">
@@ -784,7 +787,7 @@
       </div>
 
       <!-- Vision Language Model -->
-      <div class="demo-content hidden" id="demo-vlm">
+      <div class="demo-content hidden" id="demo-vlm" role="tabpanel" aria-labelledby="tab-vlm">
         <div class="demo-sidebar">
           <h3 data-i18n="demos.vlm_title">Vision Language Model</h3>
           <div class="demo-controls">
@@ -1109,6 +1112,8 @@
       </div>
     </div>
   </section>
+
+  </main>
 
   <!-- ========== FOOTER ========== -->
   <footer>

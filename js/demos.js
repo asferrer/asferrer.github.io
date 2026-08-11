@@ -1028,8 +1028,12 @@ function initDemos() {
   document.querySelectorAll(".demo-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       DemoEngine.stopAll();
-      document.querySelectorAll(".demo-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".demo-tab").forEach(t => {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
       tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
       document.querySelectorAll(".demo-content").forEach(d => d.classList.add("hidden"));
       const target = document.getElementById(`demo-${tab.dataset.demo}`);
       if (target) target.classList.remove("hidden");
