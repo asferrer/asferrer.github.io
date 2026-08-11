@@ -212,12 +212,20 @@ const DemoEngine = {
     if (ph) ph.style.display = "none";
   },
 
+  /* Update a demo button label AND its data-i18n key, so setLanguage() re-renders
+     the button's current state instead of resetting a running demo to "Start". */
+  setBtnLabel(btn, key, fallback) {
+    const span = btn?.querySelector("[data-i18n]");
+    if (!span) return;
+    span.setAttribute("data-i18n", key);
+    span.textContent = translations[currentLang][key] || fallback;
+  },
+
   resetButton(btnId) {
     const btn = document.getElementById(btnId);
     if (!btn) return;
     btn.classList.remove("running");
-    const span = btn.querySelector("[data-i18n]");
-    if (span) span.textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+    this.setBtnLabel(btn, "demos.start", "Start Webcam");
   },
 
   /* ---------- FPS counter ---------- */
@@ -761,8 +769,7 @@ const DemoEngine = {
           const btn = document.getElementById("vlmGenerate");
           if (btn) {
             btn.disabled = false;
-            const span = btn.querySelector("[data-i18n]");
-            if (span) span.textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+            this.setBtnLabel(btn, "demos.vlm_generate", "Generate");
           }
         }
       } else if (msg.type === "generate:error") {
@@ -777,8 +784,7 @@ const DemoEngine = {
         const btn = document.getElementById("vlmGenerate");
         if (btn) {
           btn.disabled = false;
-          const span = btn.querySelector("[data-i18n]");
-          if (span) span.textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+          this.setBtnLabel(btn, "demos.vlm_generate", "Generate");
         }
       }
     };
@@ -821,8 +827,7 @@ const DemoEngine = {
       const btn = document.getElementById("vlmGenerate");
       if (btn) {
         btn.disabled = true;
-        const span = btn.querySelector("[data-i18n]");
-        if (span) span.textContent = translations[currentLang]["demos.vlm_stop_gen"] || "Stop";
+        this.setBtnLabel(btn, "demos.vlm_stop_gen", "Stop");
       }
     }
 
@@ -993,8 +998,7 @@ const DemoEngine = {
     document.querySelectorAll(".demo-start-btn").forEach(btn => {
       btn.disabled = false;
       btn.classList.remove("running");
-      const span = btn.querySelector("[data-i18n]");
-      if (span) span.textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+      this.setBtnLabel(btn, "demos.start", "Start Webcam");
     });
     document.querySelectorAll(".demo-placeholder").forEach(ph => ph.style.display = "");
     // Reset VLM state
@@ -1011,8 +1015,7 @@ const DemoEngine = {
     const vlmWcBtn = document.getElementById("vlmWebcamBtn");
     if (vlmWcBtn) {
       vlmWcBtn.classList.remove("running");
-      const span = vlmWcBtn.querySelector("[data-i18n]");
-      if (span) span.textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+      this.setBtnLabel(vlmWcBtn, "demos.vlm_start_webcam", "Start Live Caption");
     }
   }
 };
@@ -1040,11 +1043,11 @@ function initDemos() {
       if (this.classList.contains("running")) {
         DemoEngine.stopWebcam(document.getElementById("detectionVideo"));
         this.classList.remove("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+        DemoEngine.setBtnLabel(this, "demos.start", "Start Webcam");
         DemoEngine.setStatus("detectionStatus", "", "");
       } else {
         this.classList.add("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.stop"] || "Stop";
+        DemoEngine.setBtnLabel(this, "demos.stop", "Stop");
         DemoEngine.initDetection();
       }
     });
@@ -1057,7 +1060,7 @@ function initDemos() {
       if (e.target.files[0]) {
         DemoEngine.stopWebcam(document.getElementById("detectionVideo"));
         const btn = document.getElementById("startDetection");
-        if (btn) { btn.classList.remove("running"); btn.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam"; }
+        if (btn) { btn.classList.remove("running"); DemoEngine.setBtnLabel(btn, "demos.start", "Start Webcam"); }
         DemoEngine.detectImage(e.target.files[0]);
       }
     });
@@ -1086,11 +1089,11 @@ function initDemos() {
       if (this.classList.contains("running")) {
         DemoEngine.stopWebcam(document.getElementById("poseVideo"));
         this.classList.remove("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+        DemoEngine.setBtnLabel(this, "demos.start", "Start Webcam");
         DemoEngine.setStatus("poseStatus", "", "");
       } else {
         this.classList.add("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.stop"] || "Stop";
+        DemoEngine.setBtnLabel(this, "demos.stop", "Stop");
         DemoEngine.initPose();
       }
     });
@@ -1103,12 +1106,12 @@ function initDemos() {
       if (this.classList.contains("running")) {
         DemoEngine.stopWebcam(document.getElementById("depthVideo"));
         this.classList.remove("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam";
+        DemoEngine.setBtnLabel(this, "demos.start", "Start Webcam");
         DemoEngine.setStatus("depthStatus", "", "");
         document.getElementById("depthFps").textContent = "";
       } else {
         this.classList.add("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.stop"] || "Stop";
+        DemoEngine.setBtnLabel(this, "demos.stop", "Stop");
         DemoEngine.initDepthWebcam();
       }
     });
@@ -1121,7 +1124,7 @@ function initDemos() {
       if (e.target.files[0]) {
         DemoEngine.stopWebcam(document.getElementById("depthVideo"));
         const btn = document.getElementById("startDepth");
-        if (btn) { btn.classList.remove("running"); btn.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.start"] || "Start Webcam"; }
+        if (btn) { btn.classList.remove("running"); DemoEngine.setBtnLabel(btn, "demos.start", "Start Webcam"); }
         DemoEngine.initDepth(e.target.files[0]);
       }
     });
@@ -1148,17 +1151,17 @@ function initDemos() {
     vlmWebcamBtn.addEventListener("click", async function () {
       if (DemoEngine._vlmWebcamActive) {
         DemoEngine.stopVlmWebcam();
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+        DemoEngine.setBtnLabel(this, "demos.vlm_start_webcam", "Start Live Caption");
         this.classList.remove("running");
       } else {
         this.classList.add("running");
-        this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_stop_webcam"] || "Stop Live Caption";
+        DemoEngine.setBtnLabel(this, "demos.vlm_stop_webcam", "Stop Live Caption");
         try {
           await DemoEngine.startVlmWebcam();
         } catch (err) {
           DemoEngine.setStatus("vlmStatus", err.message || "Camera error", "error");
           this.classList.remove("running");
-          this.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_start_webcam"] || "Start Live Caption";
+          DemoEngine.setBtnLabel(this, "demos.vlm_start_webcam", "Start Live Caption");
         }
       }
     });
@@ -1190,9 +1193,9 @@ function initDemos() {
   const vlmGen = document.getElementById("vlmGenerate");
   if (vlmGen) {
     vlmGen.addEventListener("click", () => {
-      if (vlmGen.querySelector("[data-i18n]")?.textContent === (translations[currentLang]["demos.vlm_stop_gen"] || "Stop")) {
+      if (vlmGen.querySelector("[data-i18n]")?.dataset.i18n === "demos.vlm_stop_gen") {
         DemoEngine.stopVlm();
-        vlmGen.querySelector("[data-i18n]").textContent = translations[currentLang]["demos.vlm_generate"] || "Generate";
+        DemoEngine.setBtnLabel(vlmGen, "demos.vlm_generate", "Generate");
         DemoEngine.setStatus("vlmStatus", "", "");
       } else {
         DemoEngine.generateVlm();
