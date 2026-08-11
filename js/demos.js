@@ -3,6 +3,20 @@
    Libraries loaded on-demand only
    ============================== */
 
+/* Pinned CDN versions — floating tags (latest) can break demos without any
+   commit; bump these deliberately and re-test each demo when upgrading.
+   ESM dynamic import() cannot carry SRI, so the immutable version pin is the
+   integrity guarantee for the module CDNs. */
+const CDN = {
+  tfjs: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js",
+  tfjsIntegrity: "sha384-vE8hbVJ4lezako5rlvE7bY0BVzWlFhZncPlckrqNwcUQpVtgbENTgZ8TBbnPjZre",
+  cocoSsd: "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js",
+  cocoSsdIntegrity: "sha384-7qLdgfEQyO9ZQi9ArRHigK+IBto4XPk468jAqc+fnsXaZIcMAhQeLwzggRK7aESl",
+  tasksVisionBundle: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs",
+  tasksVisionWasm: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm",
+  transformers: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1"
+};
+
 /* COCO-SSD class groups for filtering */
 const CLASS_GROUPS = {
   person: ["person"],
@@ -73,11 +87,15 @@ const DemoEngine = {
   _vlmTypewriterId: null,
 
   /* ---------- Script loader ---------- */
-  loadScript(src) {
+  loadScript(src, integrity) {
     if (document.querySelector(`script[src="${src}"]`)) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const s = document.createElement("script");
       s.src = src;
+      if (integrity) {
+        s.integrity = integrity;
+        s.crossOrigin = "anonymous";
+      }
       s.onload = resolve;
       s.onerror = () => reject(new Error(`Failed to load ${src}`));
       document.head.appendChild(s);
@@ -249,8 +267,8 @@ const DemoEngine = {
 
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading TensorFlow.js...", "loading");
-      await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
-      await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd");
+      await this.loadScript(CDN.tfjs, CDN.tfjsIntegrity);
+      await this.loadScript(CDN.cocoSsd, CDN.cocoSsdIntegrity);
 
       this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading model...", "loading");
       if (!this.models.detection) {
@@ -313,8 +331,8 @@ const DemoEngine = {
     try {
       if (!this.models.detection) {
         this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading model...", "loading");
-        await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
-        await this.loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd");
+        await this.loadScript(CDN.tfjs, CDN.tfjsIntegrity);
+        await this.loadScript(CDN.cocoSsd, CDN.cocoSsdIntegrity);
         this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
       }
 
@@ -357,7 +375,7 @@ const DemoEngine = {
      ==================================== */
   async loadVisionModule() {
     if (this._visionModule) return this._visionModule;
-    this._visionModule = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs");
+    this._visionModule = await import(CDN.tasksVisionBundle);
     return this._visionModule;
   },
 
@@ -385,9 +403,7 @@ const DemoEngine = {
 
       const numPoses = parseInt(document.getElementById("poseNumPoses")?.value || "2", 10);
 
-      const fileset = await vision.FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-      );
+      const fileset = await vision.FilesetResolver.forVisionTasks(CDN.tasksVisionWasm);
       // Recreate model if numPoses changed
       if (this.models.pose) {
         this.models.pose.close();
@@ -478,7 +494,7 @@ const DemoEngine = {
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB, first time only)...", "loading");
 
-      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
+      const { pipeline, env } = await import(CDN.transformers);
       env.allowLocalModels = false;
 
       if (!this.models.depth) {
@@ -552,7 +568,7 @@ const DemoEngine = {
 
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_depth"] || "Loading model (~27MB)...", "loading");
-      const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1");
+      const { pipeline, env } = await import(CDN.transformers);
       env.allowLocalModels = false;
       if (!this.models.depth) {
         this.models.depth = await pipeline("depth-estimation", "Xenova/depth-anything-small-hf");
