@@ -12,6 +12,13 @@ const CDN = {
   tfjsIntegrity: "sha384-vE8hbVJ4lezako5rlvE7bY0BVzWlFhZncPlckrqNwcUQpVtgbENTgZ8TBbnPjZre",
   cocoSsd: "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js",
   cocoSsdIntegrity: "sha384-7qLdgfEQyO9ZQi9ArRHigK+IBto4XPk468jAqc+fnsXaZIcMAhQeLwzggRK7aESl",
+  /* Same version as tfjs above — the WASM backend must match the core it plugs
+     into. tfjsWasmBinaries is the directory the loader picks the .wasm variant
+     from (plain / simd / threaded-simd); threads need SharedArrayBuffer, which
+     GitHub Pages cannot enable without COOP/COEP, so it settles on SIMD. */
+  tfjsWasm: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.22.0/dist/tf-backend-wasm.min.js",
+  tfjsWasmIntegrity: "sha384-8zJmraBl5B7v26aoZux6x4HhlWKyW2wD1RVC4LUkQxHS99ATPEvmsTL6D44t0Acv",
+  tfjsWasmBinaries: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.22.0/dist/",
   tasksVisionBundle: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs",
   tasksVisionWasm: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm",
   transformers: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1"
@@ -312,6 +319,113 @@ const DemoEngine = {
     return { conf, maxResults, allowedClasses };
   },
 
+  /* ---------- TF.js backend selection ----------
+     COCO-SSD overflows float16. On mobile GPUs that cannot render to float32
+     textures the WebGL backend hands back NaN scores; coco-ssd's argmax then
+     never beats its Number.MIN_VALUE seed, leaves the class index at -1, and
+     reads CLASSES[-1 + 1] — the map starts at 1, so CLASSES[0] is undefined and
+     every frame throws "Cannot read properties of undefined (reading
+     'displayName')". WebGL stays the fast path wherever float32 rendering is
+     available; the rest run the WASM backend, which is always float32. */
+  _detectionBackend: null,
+  /* Sticky once a real inference has failed: the VLM demo unloads the detection
+     model, and the reload after it must not walk back into the broken GPU path. */
+  _detectionForceWasm: false,
+
+  /* Probes the GL context without selecting a tf backend, so this is safe to
+     call before tf.ready(). No WebGL at all also means no float32. */
+  _webglIsFloat32() {
+    try {
+      return tf.env().getBool("WEBGL_RENDER_FLOAT32_CAPABLE");
+    } catch {
+      return false;
+    }
+  },
+
+  async _useWasmBackend() {
+    await this.loadScript(CDN.tfjsWasm, CDN.tfjsWasmIntegrity);
+    tf.wasm.setWasmPaths(CDN.tfjsWasmBinaries);
+    await tf.setBackend("wasm");
+    await tf.ready();
+  },
+
+  async loadDetectionModel() {
+    await this.loadScript(CDN.tfjs, CDN.tfjsIntegrity);
+    if (this._detectionForceWasm || !this._webglIsFloat32()) {
+      await this._useWasmBackend();
+    } else {
+      await tf.ready();
+    }
+    this._detectionBackend = tf.getBackend();
+    await this.loadScript(CDN.cocoSsd, CDN.cocoSsdIntegrity);
+    const previous = this.models.detection;
+    // Assigned only on success: a failed reload keeps the working model
+    this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+    if (previous && previous.dispose) previous.dispose();
+  },
+
+  _detectionRunningText() {
+    const running = translations[currentLang]["demos.running"] || "Running — detecting objects in real time";
+    return this._detectionBackend === "wasm" ? `${running} (WASM)` : running;
+  },
+
+  /* Safari phrases it as "undefined is not an object (evaluating
+     '...displayName')", so the property name is the portable signal. */
+  _isPrecisionError(e) {
+    return String((e && e.message) || e).includes("displayName");
+  },
+
+  /* Reload the model on WASM after WebGL produced corrupt output. Returning
+     false once already on WASM is what stops this from looping. */
+  async _recoverDetectionOnWasm(status) {
+    if (this._detectionForceWasm) return false;
+    this._detectionForceWasm = true;
+    this.setStatus(status, translations[currentLang]["demos.switching_backend"] ||
+      "GPU precision issue — reloading the model on the WASM backend...", "loading");
+    try {
+      await this.loadDetectionModel();
+    } catch {
+      return false;
+    }
+    this.setStatus(status, this._detectionRunningText(), "success");
+    return true;
+  },
+
+  /* Single entry point for both webcam and image detection, so the WASM
+     recovery covers each of them. */
+  async runDetection(input, status) {
+    const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
+    let preds;
+    try {
+      preds = await this.models.detection.detect(input, maxResults);
+    } catch (e) {
+      if (!this._isPrecisionError(e) || !await this._recoverDetectionOnWasm(status)) throw e;
+      preds = await this.models.detection.detect(input, maxResults);
+    }
+    preds = preds.filter(p => p.score >= conf);
+    return allowedClasses ? preds.filter(p => allowedClasses.has(p.class)) : preds;
+  },
+
+  /* Shared by the webcam loop and the still-image path; `big` draws heavier so
+     labels stay legible on full-resolution photos. */
+  drawDetections(ctx, preds, big) {
+    const boxH = big ? 24 : 20;
+    preds.forEach(p => {
+      const [x, y, w, h] = p.bbox;
+      const color = getClassColor(p.class);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = big ? 3 : 2;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = color;
+      ctx.font = `bold ${big ? 16 : 14}px Inter, sans-serif`;
+      const label = `${p.class} ${Math.round(p.score * 100)}%`;
+      const tw = ctx.measureText(label).width;
+      ctx.fillRect(x, y - boxH, tw + (big ? 10 : 8), boxH);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, x + (big ? 5 : 4), y - (big ? 6 : 5));
+    });
+  },
+
   /* ====================================
      DEMO 1: Object Detection (TF.js COCO-SSD)
      ==================================== */
@@ -326,12 +440,9 @@ const DemoEngine = {
 
     try {
       this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading TensorFlow.js...", "loading");
-      await this.loadScript(CDN.tfjs, CDN.tfjsIntegrity);
-      await this.loadScript(CDN.cocoSsd, CDN.cocoSsdIntegrity);
-
-      this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading model...", "loading");
       if (!this.models.detection) {
-        this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+        this.setStatus(status, translations[currentLang]["demos.loading_model"] || "Loading model...", "loading");
+        await this.loadDetectionModel();
       }
 
       this.setStatus(status, translations[currentLang]["demos.starting_cam"] || "Starting camera...", "loading");
@@ -342,7 +453,7 @@ const DemoEngine = {
       if (!video.videoWidth) {
         this.setStatus(status, "Camera started but delivered no video frames — try the flip-camera button or reload", "error");
       } else {
-        this.setStatus(status, translations[currentLang]["demos.running"] || "Running — detecting objects in real time", "success");
+        this.setStatus(status, this._detectionRunningText(), "success");
       }
       const fps = this.createFpsCounter();
 
@@ -360,28 +471,12 @@ const DemoEngine = {
 
         let preds = [];
         try {
-          const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
-          preds = await this.models.detection.detect(video, maxResults);
-          preds = preds.filter(p => p.score >= conf);
-          if (allowedClasses) preds = preds.filter(p => allowedClasses.has(p.class));
+          preds = await this.runDetection(video, status);
         } catch (e) {
           this.setStatus(status, `Inference error: ${(e && e.message) || e}`, "error");
         }
 
-        preds.forEach(p => {
-          const [x, y, w, h] = p.bbox;
-          const color = getClassColor(p.class);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 2;
-          ctx.strokeRect(x, y, w, h);
-          ctx.fillStyle = color;
-          ctx.font = "bold 14px Inter, sans-serif";
-          const label = `${p.class} ${Math.round(p.score * 100)}%`;
-          const tw = ctx.measureText(label).width;
-          ctx.fillRect(x, y - 20, tw + 8, 20);
-          ctx.fillStyle = "#fff";
-          ctx.fillText(label, x + 4, y - 5);
-        });
+        this.drawDetections(ctx, preds, false);
 
         fps.tick();
         const f = fps.get();
@@ -405,9 +500,7 @@ const DemoEngine = {
     try {
       if (!this.models.detection) {
         this.setStatus(status, translations[currentLang]["demos.loading_lib"] || "Loading model...", "loading");
-        await this.loadScript(CDN.tfjs, CDN.tfjsIntegrity);
-        await this.loadScript(CDN.cocoSsd, CDN.cocoSsdIntegrity);
-        this.models.detection = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+        await this.loadDetectionModel();
       }
 
       const img = new Image();
@@ -417,25 +510,15 @@ const DemoEngine = {
         ctx.drawImage(img, 0, 0);
         this.setStatus(status, translations[currentLang]["demos.detecting"] || "Detecting...", "loading");
 
-        const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
-        let preds = await this.models.detection.detect(img, maxResults);
-        preds = preds.filter(p => p.score >= conf);
-        if (allowedClasses) preds = preds.filter(p => allowedClasses.has(p.class));
+        let preds;
+        try {
+          preds = await this.runDetection(img, status);
+        } catch (e) {
+          this.setStatus(status, `Inference error: ${(e && e.message) || e}`, "error");
+          return;
+        }
 
-        preds.forEach(p => {
-          const [x, y, w, h] = p.bbox;
-          const color = getClassColor(p.class);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 3;
-          ctx.strokeRect(x, y, w, h);
-          ctx.fillStyle = color;
-          ctx.font = "bold 16px Inter, sans-serif";
-          const label = `${p.class} ${Math.round(p.score * 100)}%`;
-          const tw = ctx.measureText(label).width;
-          ctx.fillRect(x, y - 24, tw + 10, 24);
-          ctx.fillStyle = "#fff";
-          ctx.fillText(label, x + 5, y - 6);
-        });
+        this.drawDetections(ctx, preds, true);
         this.setStatus(status, `${preds.length} objects detected`, "success");
       };
       img.src = URL.createObjectURL(file);
@@ -735,7 +818,9 @@ const DemoEngine = {
   unloadOtherModels(except) {
     for (const key of Object.keys(this.models)) {
       if (key !== except && this.models[key]) {
+        // MediaPipe tasks expose close(), coco-ssd exposes dispose()
         if (this.models[key].close) this.models[key].close();
+        else if (this.models[key].dispose) this.models[key].dispose();
         this.models[key] = null;
       }
     }
