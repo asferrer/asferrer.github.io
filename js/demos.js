@@ -112,7 +112,23 @@ const DemoEngine = {
       video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
     });
     video.srcObject = this.stream;
-    return new Promise(r => { video.onloadedmetadata = () => { video.play(); r(); }; });
+    await new Promise(r => {
+      if (video.readyState >= 1) { r(); return; }
+      video.onloadedmetadata = () => r();
+    });
+    await video.play().catch(() => {});
+    // Mobile browsers can fire loadedmetadata with videoWidth still 0; without
+    // real dimensions the demo canvases end up 0x0 and render as a black box
+    if (!video.videoWidth) {
+      await new Promise(r => {
+        const t0 = performance.now();
+        const poll = () => {
+          if (video.videoWidth || performance.now() - t0 > 5000) { r(); return; }
+          requestAnimationFrame(poll);
+        };
+        poll();
+      });
+    }
   },
 
   async flipCamera() {
@@ -298,6 +314,10 @@ const DemoEngine = {
       const detect = async () => {
         if (!this.stream) return;
         if (!video.videoWidth) { this.animId = requestAnimationFrame(detect); return; }
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
         const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
         let preds = await this.models.detection.detect(video, maxResults);
         preds = preds.filter(p => p.score >= conf);
@@ -442,6 +462,10 @@ const DemoEngine = {
       const detect = () => {
         if (!this.stream) return;
         if (!video.videoWidth) { this.animId = requestAnimationFrame(detect); return; }
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
         const results = this.models.pose.detectForVideo(video, performance.now());
         const { minConf, showSkeleton, showPoints } = this.getPoseOpts();
 
