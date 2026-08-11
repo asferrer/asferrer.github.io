@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   initLanguage();
   initNav();
-  initSmoothScroll();
   initScrollReveal();
   initCounters();
   initProjectFilters();
@@ -71,19 +70,6 @@ function initNav() {
   }, { threshold: 0.3, rootMargin: "-80px 0px 0px 0px" });
 
   sections.forEach(s => observer.observe(s));
-}
-
-/* ==============================
-   SMOOTH SCROLL
-   ============================== */
-function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener("click", e => {
-      e.preventDefault();
-      const target = document.querySelector(anchor.getAttribute("href"));
-      if (target) target.scrollIntoView({ behavior: "smooth" });
-    });
-  });
 }
 
 /* ==============================

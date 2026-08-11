@@ -1580,6 +1580,8 @@ footer {
   .timeline-header { flex-direction: column; }
 
   .projects-grid { grid-template-columns: 1fr; }
+  /* Longest project description (NEURON) exceeds 800px when text wraps on mobile */
+  .project-card.expanded .project-details { max-height: 1600px; }
 
   .demo-content { grid-template-columns: 1fr; }
   .demo-viewport { min-height: 220px; }
