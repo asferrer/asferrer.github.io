@@ -233,6 +233,7 @@
         <button class="filter-btn active" data-filter="all" data-i18n="projects.filter_all">All</button>
         <button class="filter-btn" data-filter="professional" data-i18n="projects.filter_pro">Professional</button>
         <button class="filter-btn" data-filter="academic" data-i18n="projects.filter_acad">Academic</button>
+        <button class="filter-btn" data-filter="personal" data-i18n="projects.filter_personal">Personal</button>
       </div>
       <div class="projects-grid">
 
@@ -242,6 +243,7 @@
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #1d6fd1 100%)">
             <div class="project-logos">
+              <img src="assets/logos/sesar.png" alt="SESAR Joint Undertaking">
               <img src="assets/logos/neuron.png" alt="NEURON">
             </div>
             <div class="project-thumb-icon"><i class="fas fa-plane-departure"></i></div>
@@ -266,7 +268,7 @@
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/Hir720g__4s/hqdefault.jpg')">
             <div class="project-logos">
-              <span class="logo-text">Minsait</span>
+              <img src="assets/logos/minsait.svg" alt="Minsait">
             </div>
             <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
           </div>
@@ -380,6 +382,9 @@
         <!-- Mobeye -->
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #f63366 100%)">
+            <div class="project-logos">
+              <img src="assets/logos/indra.svg" alt="Indra Group">
+            </div>
             <div class="project-thumb-icon"><i class="fas fa-train-subway"></i></div>
             <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
           </div>
@@ -396,6 +401,10 @@
         <!-- Traffic Control Copilot -->
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #007bff 100%)">
+            <div class="project-logos">
+              <img src="assets/logos/microsoft.svg" alt="Microsoft">
+              <img src="assets/logos/ferrovial.svg" alt="Ferrovial">
+            </div>
             <div class="project-thumb-icon"><i class="fas fa-traffic-light"></i></div>
             <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
           </div>
@@ -412,6 +421,9 @@
         <!-- FishEye -->
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #00c9a7 100%)">
+            <div class="project-logos">
+              <img src="assets/logos/indra.svg" alt="Indra Group">
+            </div>
             <div class="project-thumb-icon"><i class="fas fa-video"></i></div>
             <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
           </div>
@@ -428,6 +440,9 @@
         <!-- Telco Multi-Object Tracking POC -->
         <div class="project-card" data-category="professional" data-reveal="up">
           <div class="project-thumb project-thumb-gradient" style="background: linear-gradient(135deg, #192538 0%, #8a4fd3 100%)">
+            <div class="project-logos">
+              <img src="assets/logos/minsait.svg" alt="Minsait">
+            </div>
             <div class="project-thumb-icon"><i class="fas fa-people-arrows"></i></div>
             <span class="project-badge" data-i18n="projects.badge_pro">Professional</span>
           </div>
@@ -444,9 +459,9 @@
         <!-- === ACADEMIC PROJECTS === -->
 
         <!-- OceanGuard AI -->
-        <div class="project-card" data-category="academic" data-reveal="up">
+        <div class="project-card" data-category="personal" data-reveal="up">
           <div class="project-thumb" style="background-image:url('https://img.youtube.com/vi/4YRmgjpFcSI/hqdefault.jpg')">
-            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+            <span class="project-badge badge-personal" data-i18n="projects.badge_personal">Personal</span>
           </div>
           <div class="project-info">
             <h3 data-i18n="projects.ocean_title">OceanGuard AI -Marine Pollution Monitoring</h3>
@@ -465,9 +480,12 @@
         </div>
 
         <!-- PadelCortex -->
-        <div class="project-card" data-category="academic" data-reveal="up">
-          <div class="project-thumb project-thumb-gradient" style="background: url('assets/padelcortex.webp') center/contain no-repeat, linear-gradient(135deg, #192538 0%, #16a34a 100%)">
-            <span class="project-badge badge-academic" data-i18n="projects.badge_acad">Academic</span>
+        <div class="project-card" data-category="personal" data-reveal="up">
+          <div class="project-thumb" style="background-image:url('assets/padelcortex-app.jpg')">
+            <div class="project-logos">
+              <img src="assets/padelcortex.webp" alt="PadelCortex" style="background: #192538;">
+            </div>
+            <span class="project-badge badge-personal" data-i18n="projects.badge_personal">Personal</span>
           </div>
           <div class="project-info">
             <h3 data-i18n="projects.padel_title">PadelCortex | Smart Tournament Scheduling</h3>
@@ -476,6 +494,9 @@
           </div>
           <div class="project-details">
             <p data-i18n="projects.padel_details">Full-stack web platform that organizes padel tournaments end to end: it collects each pair's availability, crosses it with the club's court schedule and generates (or reorganizes) the brackets while minimizing player displacements. Built with Next.js and React, TypeScript, Tailwind CSS and Prisma over PostgreSQL, with bilingual UI and a decoupled scheduling engine combining greedy heuristics with local search.</p>
+            <div class="project-links">
+              <a href="https://padelcortex.app/es" target="_blank" rel="noopener"><i class="fas fa-globe"></i> padelcortex.app</a>
+            </div>
           </div>
         </div>
 
