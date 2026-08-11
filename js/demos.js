@@ -106,17 +106,48 @@ const DemoEngine = {
   _facingMode: "user",
   _isFlipping: false,
 
+  /* getUserMedia can stay pending forever on some mobile browsers (busy camera,
+     lost permission prompt). Race it against a timeout, and stop the late stream
+     if the original request resolves after we already gave up on it. */
+  _getUserMedia(constraints, ms) {
+    const req = navigator.mediaDevices.getUserMedia(constraints);
+    let settled = false;
+    return Promise.race([
+      req.then(s => { settled = true; return s; }),
+      new Promise((_, rej) => setTimeout(() => {
+        if (!settled) {
+          req.then(s => s.getTracks().forEach(t => t.stop())).catch(() => {});
+          rej(new Error("Camera request timed out — close other apps using the camera and check the site's camera permission"));
+        }
+      }, ms))
+    ]);
+  },
+
   async startWebcam(video) {
     if (this.stream) this.stopWebcam(video);
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
-    });
+    try {
+      this.stream = await this._getUserMedia({
+        video: { facingMode: this._facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+      }, 10000);
+    } catch (e) {
+      if (e && e.name === "NotAllowedError") {
+        throw new Error("Camera permission denied — allow camera access for this site and reload");
+      }
+      // Retry with the simplest constraint: some mobile browsers stall on
+      // size/facingMode constraints
+      this.stream = await this._getUserMedia({ video: true }, 8000);
+    }
     video.srcObject = this.stream;
     await new Promise(r => {
       if (video.readyState >= 1) { r(); return; }
       video.onloadedmetadata = () => r();
+      setTimeout(r, 4000);
     });
-    await video.play().catch(() => {});
+    // play() can also hang forever on hidden videos in some mobile browsers
+    await Promise.race([
+      video.play().catch(() => {}),
+      new Promise(r => setTimeout(r, 3000))
+    ]);
     // Mobile browsers can fire loadedmetadata with videoWidth still 0; without
     // real dimensions the demo canvases end up 0x0 and render as a black box
     if (!video.videoWidth) {
