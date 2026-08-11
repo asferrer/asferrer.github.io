@@ -851,7 +851,7 @@ const DemoEngine = {
     // Append language hint based on current page language
     let finalPrompt = prompt;
     if (typeof currentLang !== "undefined" && currentLang === "es") {
-      finalPrompt += " Responde en espanol.";
+      finalPrompt += " Responde en español.";
     }
 
     const { maxTokens, temperature } = this.getVlmOpts();
