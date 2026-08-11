@@ -493,7 +493,8 @@ const DemoEngine = {
      ==================================== */
   getDepthOpts() {
     const sideBySide = document.getElementById("depthSideBySide")?.checked !== false;
-    return { sideBySide };
+    const colormap = document.getElementById("depthColormap")?.value || "inferno";
+    return { sideBySide, colormap };
   },
 
   async initDepth(file) {
@@ -516,8 +517,8 @@ const DemoEngine = {
       this.setStatus(status, translations[currentLang]["demos.processing"] || "Processing depth map...", "loading");
       const img = new Image();
       img.onload = async () => {
-        const { sideBySide } = this.getDepthOpts();
-        const lut = buildColormap("inferno");
+        const { sideBySide, colormap } = this.getDepthOpts();
+        const lut = buildColormap(colormap);
 
         const result = await this.models.depth(img.src);
         const depthMap = result.depth;
@@ -591,7 +592,6 @@ const DemoEngine = {
 
       this.setStatus(status, translations[currentLang]["demos.running"] || "Running depth estimation on webcam", "success");
       const fps = this.createFpsCounter();
-      const lut = buildColormap("inferno");
       let processing = false;
 
       const processFrame = async () => {
@@ -610,7 +610,8 @@ const DemoEngine = {
             URL.revokeObjectURL(url);
             const depthMap = result.depth;
 
-            const { sideBySide } = this.getDepthOpts();
+            const { sideBySide, colormap } = this.getDepthOpts();
+            const lut = buildColormap(colormap);
             const vw = video.videoWidth, vh = video.videoHeight;
             canvas.width = sideBySide ? vw * 2 : vw;
             canvas.height = vh;
@@ -650,7 +651,7 @@ const DemoEngine = {
      DEMO 4: Vision Language Model (SmolVLM)
      ==================================== */
   getVlmOpts() {
-    const maxTokens = parseInt(document.getElementById("vlmMaxTokens")?.value || "200", 10);
+    const maxTokens = parseInt(document.getElementById("vlmMaxTokens")?.value || "80", 10);
     const tempRaw = parseInt(document.getElementById("vlmTemperature")?.value || "3", 10);
     return { maxTokens, temperature: tempRaw / 10 };
   },
