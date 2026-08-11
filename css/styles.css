@@ -1122,20 +1122,6 @@ section {
   display: block;
 }
 
-.demo-streamlit-link {
-  text-align: center;
-  margin-top: 40px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-md);
-  border: var(--glass-border);
-}
-.demo-streamlit-link p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-.demo-streamlit-link a { font-weight: 600; }
-
 /* ==============================
    SKILLS
    ============================== */
@@ -1304,7 +1290,6 @@ section {
   margin-bottom: 12px;
   display: block;
 }
-.award-card .fa-code { color: var(--accent-blue); }
 .award-card h4 { font-size: 1rem; margin-bottom: 4px; }
 .award-card p { font-size: 0.85rem; color: var(--text-secondary); }
 .award-card .award-link { display: block; color: inherit; text-decoration: none; }
