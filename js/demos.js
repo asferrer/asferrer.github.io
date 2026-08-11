@@ -123,6 +123,8 @@ const DemoEngine = {
 
     try {
       const newFacing = this._facingMode === "user" ? "environment" : "user";
+      // Captured before stopping tracks — getSettings() is unreliable afterwards
+      const currentDeviceId = this.stream.getVideoTracks()[0]?.getSettings()?.deviceId;
 
       // Step 1: Stop old tracks to release camera hardware FIRST
       // Mobile browsers cannot open two cameras simultaneously (WebKit #238492)
@@ -141,12 +143,14 @@ const DemoEngine = {
             video: { facingMode: newFacing, width: { ideal: 640 }, height: { ideal: 480 } }
           });
         } catch {
-          // Last resort: deviceId cycling
+          // Last resort: pick a device different from the active one —
+          // devices[0] may be the camera that was already in use
           const devices = (await navigator.mediaDevices.enumerateDevices())
             .filter(d => d.kind === "videoinput" && d.deviceId);
           if (devices.length < 2) throw new Error("No alternate camera");
+          const alt = devices.find(d => d.deviceId !== currentDeviceId) || devices[0];
           newStream = await navigator.mediaDevices.getUserMedia({
-            video: { deviceId: { exact: devices[0].deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+            video: { deviceId: { exact: alt.deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
           });
         }
       }
@@ -662,12 +666,7 @@ const DemoEngine = {
   },
 
   _vlmLog(msg) {
-    const el = document.getElementById("vlmDebugLog");
-    if (el) {
-      const ts = new Date().toLocaleTimeString();
-      el.textContent += `[${ts}] ${msg}\n`;
-      el.scrollTop = el.scrollHeight;
-    }
+    console.debug("[vlm]", msg);
   },
 
   async initVlm() {
