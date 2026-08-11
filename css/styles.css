@@ -172,10 +172,18 @@ section {
 }
 
 .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary) !important;
   letter-spacing: 1px;
+}
+.nav-logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
 }
 .nav-logo:hover { color: var(--accent-pink) !important; }
 
