@@ -308,7 +308,11 @@ const DemoEngine = {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      this.setStatus(status, translations[currentLang]["demos.running"] || "Running — detecting objects in real time", "success");
+      if (!video.videoWidth) {
+        this.setStatus(status, "Camera started but delivered no video frames — try the flip-camera button or reload", "error");
+      } else {
+        this.setStatus(status, translations[currentLang]["demos.running"] || "Running — detecting objects in real time", "success");
+      }
       const fps = this.createFpsCounter();
 
       const detect = async () => {
@@ -318,13 +322,20 @@ const DemoEngine = {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
         }
-        const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
-        let preds = await this.models.detection.detect(video, maxResults);
-        preds = preds.filter(p => p.score >= conf);
-        if (allowedClasses) preds = preds.filter(p => allowedClasses.has(p.class));
-
+        // Draw the live frame BEFORE inference: if the model throws on this
+        // device the user still sees the camera feed instead of a black box
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(video, 0, 0);
+
+        let preds = [];
+        try {
+          const { conf, maxResults, allowedClasses } = this.getDetectionOpts();
+          preds = await this.models.detection.detect(video, maxResults);
+          preds = preds.filter(p => p.score >= conf);
+          if (allowedClasses) preds = preds.filter(p => allowedClasses.has(p.class));
+        } catch (e) {
+          this.setStatus(status, `Inference error: ${(e && e.message) || e}`, "error");
+        }
 
         preds.forEach(p => {
           const [x, y, w, h] = p.bbox;
@@ -455,7 +466,11 @@ const DemoEngine = {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      this.setStatus(status, translations[currentLang]["demos.running"] || "Running — detecting body pose in real time", "success");
+      if (!video.videoWidth) {
+        this.setStatus(status, "Camera started but delivered no video frames — try the flip-camera button or reload", "error");
+      } else {
+        this.setStatus(status, translations[currentLang]["demos.running"] || "Running — detecting body pose in real time", "success");
+      }
       const fps = this.createFpsCounter();
       const connections = vision.PoseLandmarker.POSE_CONNECTIONS;
 
@@ -466,11 +481,17 @@ const DemoEngine = {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
         }
-        const results = this.models.pose.detectForVideo(video, performance.now());
-        const { minConf, showSkeleton, showPoints } = this.getPoseOpts();
-
+        // Frame first — feed stays visible even if inference fails on this device
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(video, 0, 0);
+
+        let results = {};
+        try {
+          results = this.models.pose.detectForVideo(video, performance.now());
+        } catch (e) {
+          this.setStatus(status, `Inference error: ${(e && e.message) || e}`, "error");
+        }
+        const { minConf, showSkeleton, showPoints } = this.getPoseOpts();
 
         if (results.landmarks) {
           results.landmarks.forEach(landmarks => {
