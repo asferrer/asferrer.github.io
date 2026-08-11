@@ -604,6 +604,10 @@ section {
   background: rgba(255, 255, 255, 0.9);
   padding: 3px 6px;
 }
+/* Ajustes por logo para igualar la altura visual del texto (~12px) */
+.project-logos img[src*="minsait"] { width: 150px; max-width: 150px; }
+.project-logos img[src*="ferrovial"] { width: 68px; }
+.project-logos img[src*="enel"] { width: 62px; }
 .logo-text {
   display: inline-block;
   padding: 4px 10px;
