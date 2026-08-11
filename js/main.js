@@ -114,6 +114,10 @@ function initCounters() {
       animated = true;
       counters.forEach(counter => {
         const target = parseInt(counter.getAttribute("data-count"), 10);
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          counter.textContent = target;
+          return;
+        }
         const duration = 2000;
         const start = performance.now();
 
@@ -245,6 +249,21 @@ function initParticles() {
       }
     });
     animId = requestAnimationFrame(draw);
+  }
+
+  // Reduced motion: render one static frame, no animation loop
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    resize();
+    createParticles();
+    isVisible = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(246, 51, 102, ${p.alpha})`;
+      ctx.fill();
+    });
+    return;
   }
 
   // Pause when hero not visible

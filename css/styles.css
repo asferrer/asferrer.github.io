@@ -1510,6 +1510,30 @@ footer {
 }
 
 /* ==============================
+   REDUCED MOTION
+   ============================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .spin-container,
+  .morph-shape,
+  .morph-inner,
+  .morph-inner img,
+  .vlm-output .cursor { animation: none; }
+  /* Reveals must not hide content when the entrance animation is disabled */
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .btn:hover,
+  .project-card:hover,
+  .skill-card:hover,
+  .edu-card:hover,
+  .cert-card:hover,
+  .social-links a:hover,
+  .contact-socials a:hover,
+  .project-logos a:hover,
+  .morph-inner:hover img,
+  #backToTop:hover { transform: none; }
+}
+
+/* ==============================
    RESPONSIVE
    ============================== */
 @media (max-width: 1024px) {
