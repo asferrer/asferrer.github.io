@@ -7,6 +7,7 @@ import {
   AutoProcessor,
   AutoModelForVision2Seq,
   TextStreamer,
+  InterruptableStoppingCriteria,
   load_image,
   env,
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
@@ -17,6 +18,9 @@ let processor = null;
 let model = null;
 let aborted = false;
 let deviceUsed = "webgpu";
+// Real generation interrupt: without it, "abort" only muted the token stream
+// while model.generate() kept consuming CPU until completion.
+const stopper = new InterruptableStoppingCriteria();
 
 function log(msg) {
   self.postMessage({ type: "log", data: msg });
@@ -39,6 +43,7 @@ self.onmessage = async ({ data: msg }) => {
     await handleGenerate(msg.data);
   } else if (msg.type === "abort") {
     aborted = true;
+    stopper.interrupt();
   }
 };
 
@@ -114,6 +119,7 @@ async function handleLoad() {
 
 async function handleGenerate({ image, prompt, maxTokens, temperature }) {
   aborted = false;
+  stopper.reset();
 
   try {
     log("Loading image...");
@@ -149,6 +155,7 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
       ...inputs,
       max_new_tokens: maxTokens || 200,
       streamer,
+      stopping_criteria: stopper,
     };
     // On WASM: force greedy decoding (faster, no sampling overhead)
     if (deviceUsed === "wasm") {
@@ -169,6 +176,7 @@ async function handleGenerate({ image, prompt, maxTokens, temperature }) {
       genTimeout = setTimeout(() => {
         log("TIMEOUT: 180s with no output — WASM inference too slow for this device");
         aborted = true;
+        stopper.interrupt();
         self.postMessage({ type: "generate:error", data: { message: "Timeout: model too slow on this device (180s)" } });
       }, 180000);
     }

@@ -826,7 +826,8 @@ const DemoEngine = {
       }
       const btn = document.getElementById("vlmGenerate");
       if (btn) {
-        btn.disabled = true;
+        // Stays enabled: while generating, this same button is the Stop control
+        btn.disabled = false;
         this.setBtnLabel(btn, "demos.vlm_stop_gen", "Stop");
       }
     }
